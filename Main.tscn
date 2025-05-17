@@ -1,18 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://b1medohf0ugns"]
+[gd_scene load_steps=9 format=3 uid="uid://b1medohf0ugns"]
 
 [ext_resource type="PackedScene" uid="uid://dqq4w7fimk4gi" path="res://Player/Player.tscn" id="1"]
+[ext_resource type="Script" uid="uid://dvxdmn76sxxto" path="res://Main.gd" id="1_cm0pq"]
 [ext_resource type="Texture2D" uid="uid://86e6g2oit01l" path="res://platform.png" id="2_uu6xs"]
+[ext_resource type="Texture2D" uid="uid://i8xfni3e47dn" path="res://cane.png" id="3_r0du0"]
 
 [sub_resource type="RectangleShape2D" id="1"]
-size = Vector2(1270, 128)
+size = Vector2(1270, 256)
 
 [sub_resource type="RectangleShape2D" id="2"]
 size = Vector2(399, 26)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r0du0"]
+size = Vector2(3096, 256)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cm0pq"]
+size = Vector2(256, 3200)
+
 [node name="Main" type="Node2D"]
+script = ExtResource("1_cm0pq")
 
 [node name="Player" parent="." instance=ExtResource("1")]
-position = Vector2(0, -160)
+position = Vector2(0, -220)
 
 [node name="Stage" type="Node2D" parent="."]
 position = Vector2(-4, -6)
@@ -25,29 +34,64 @@ debug_color = Color(0.945588, 5.77569e-06, 0.591768, 0.42)
 
 [node name="Sprite2D" type="Sprite2D" parent="Stage/MainPlatform"]
 position = Vector2(4, -1.99999)
-scale = Vector2(0.838542, 0.300781)
+scale = Vector2(0.839, 0.6)
 texture = ExtResource("2_uu6xs")
 
 [node name="LeftPlatform" type="StaticBody2D" parent="Stage"]
-position = Vector2(-420, -256)
+position = Vector2(-420, -350)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Stage/LeftPlatform"]
 shape = SubResource("2")
 one_way_collision = true
 one_way_collision_margin = 5.0
 
+[node name="Sprite2D" type="Sprite2D" parent="Stage/LeftPlatform"]
+scale = Vector2(0.33, 0.33)
+texture = ExtResource("3_r0du0")
+
 [node name="RightPlatform" type="StaticBody2D" parent="Stage"]
-position = Vector2(420, -256)
+position = Vector2(420, -350)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Stage/RightPlatform"]
 shape = SubResource("2")
 one_way_collision = true
 one_way_collision_margin = 5.0
 
+[node name="Sprite2D" type="Sprite2D" parent="Stage/RightPlatform"]
+scale = Vector2(0.33, 0.33)
+texture = ExtResource("3_r0du0")
+
 [node name="TopPlatform" type="StaticBody2D" parent="Stage"]
-position = Vector2(0, -512)
+position = Vector2(0, -600)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Stage/TopPlatform"]
 shape = SubResource("2")
 one_way_collision = true
 one_way_collision_margin = 5.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Stage/TopPlatform"]
+scale = Vector2(0.33, 0.33)
+texture = ExtResource("3_r0du0")
+
+[node name="SpawnPoint" type="Marker2D" parent="."]
+position = Vector2(0, -1200)
+
+[node name="DeathZone" type="Area2D" parent="."]
+position = Vector2(0, 796)
+
+[node name="BottomDeathZone" type="CollisionShape2D" parent="DeathZone"]
+shape = SubResource("RectangleShape2D_r0du0")
+
+[node name="RightDeathZone" type="CollisionShape2D" parent="DeathZone"]
+position = Vector2(1680, -1471)
+shape = SubResource("RectangleShape2D_cm0pq")
+
+[node name="LeftDeathZone" type="CollisionShape2D" parent="DeathZone"]
+position = Vector2(-1677, -1466)
+shape = SubResource("RectangleShape2D_cm0pq")
+
+[node name="TopDeathZone" type="CollisionShape2D" parent="DeathZone"]
+position = Vector2(5, -2937)
+shape = SubResource("RectangleShape2D_r0du0")
+
+[connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]
