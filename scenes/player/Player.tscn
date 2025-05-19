@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://dqq4w7fimk4gi"]
+[gd_scene load_steps=11 format=3 uid="uid://dqq4w7fimk4gi"]
 
 [ext_resource type="Script" uid="uid://blrxjmmfj02y3" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://ci3e3idcrf8q1" path="res://assets/sprites/player/strawberry/strawberry_idle.png" id="2_tpg5x"]
 [ext_resource type="Texture2D" uid="uid://b53omdctpnvof" path="res://assets/sprites/player/strawberry/strawberry_flap.png" id="3_c3xxp"]
+[ext_resource type="Texture2D" uid="uid://1tmvnaamicdp" path="res://assets/sprites/player/strawberry/strawberry_soar.png" id="4_c3xxp"]
 [ext_resource type="Texture2D" uid="uid://b0waad5pljabm" path="res://assets/sprites/player/strawberry/strawberry_walk0.png" id="4_npwbq"]
 [ext_resource type="Texture2D" uid="uid://hix01l3vvjp6" path="res://assets/sprites/player/strawberry/strawberry_walk1.png" id="5_v42im"]
 
@@ -27,9 +28,20 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("3_c3xxp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_c3xxp")
 }],
 "loop": true,
-"name": &"jump",
+"name": &"jump_hold",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_c3xxp")
+}],
+"loop": true,
+"name": &"jump_release",
 "speed": 5.0
 }, {
 "frames": [{
@@ -62,7 +74,7 @@ zoom = Vector2(0.5, 0.5)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(0.2, 0.2)
 sprite_frames = SubResource("SpriteFrames_6ysni")
-animation = &"walk"
+animation = &"jump_hold"
 
 [node name="OverlapArea" type="Area2D" parent="."]
 collision_layer = 8

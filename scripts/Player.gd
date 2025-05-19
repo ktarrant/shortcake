@@ -108,12 +108,19 @@ func update_sprite_rotation():
 		sprite.rotation = lerp_angle(sprite.rotation, 0.0, 0.2)
 
 func update_animation():
-	if not is_on_floor():
-		sprite.play("jump")
-	elif abs(velocity.x) > 0.1:
-		sprite.play("walk")
+	if is_on_floor():
+		if abs(velocity.x) > 0.1:
+			sprite.play("walk")
+		else:
+			sprite.play("idle")
 	else:
-		sprite.play("idle")
+		if velocity.y < 0:
+			if Input.is_action_pressed("jump"):
+				sprite.play("jump_hold")
+			else:
+				sprite.play("jump_release")
+		else:
+			sprite.play("jump_release")
 
 func _on_OverlapArea_body_entered(body):
 	if body is Player and body != self:
