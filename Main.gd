@@ -1,6 +1,7 @@
 extends Node2D
 
 class_name Main
+
 const Player = preload("res://Player/Player.gd")
 
 @onready var spawn_point = $SpawnPoint

@@ -1,11 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://dqq4w7fimk4gi"]
+[gd_scene load_steps=10 format=3 uid="uid://dqq4w7fimk4gi"]
 
 [ext_resource type="Script" uid="uid://blrxjmmfj02y3" path="res://Player/Player.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://cd7icjy4jnky7" path="res://strawberry.png" id="2_q3lat"]
 
-[sub_resource type="CapsuleShape2D" id="1"]
-radius = 75.0
-height = 150.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q3lat"]
+radius = 60.0
+height = 140.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q3lat"]
 atlas = ExtResource("2_q3lat")
@@ -53,13 +53,17 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tok1r"]
+radius = 75.0
+height = 150.0
+
 [node name="Player" type="CharacterBody2D"]
-collision_mask = 3
+collision_mask = 2
 script = ExtResource("1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 10)
-shape = SubResource("1")
+shape = SubResource("CapsuleShape2D_q3lat")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(0.5, 0.5)
@@ -68,3 +72,12 @@ zoom = Vector2(0.5, 0.5)
 scale = Vector2(0.33, 0.33)
 sprite_frames = SubResource("SpriteFrames_6ysni")
 animation = &"jump"
+
+[node name="OverlapArea" type="Area2D" parent="."]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OverlapArea"]
+shape = SubResource("CapsuleShape2D_tok1r")
+
+[connection signal="body_entered" from="OverlapArea" to="." method="_on_OverlapArea_body_entered"]
+[connection signal="body_exited" from="OverlapArea" to="." method="_on_OverlapArea_body_exited"]
