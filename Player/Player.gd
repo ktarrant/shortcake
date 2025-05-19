@@ -12,16 +12,30 @@ extends CharacterBody2D
 @export var character_tint := Color(1, 1, 1)  # Default = white (no tint)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var spawn_point = $SpawnPoint
 
 var jump_count := 0
 var can_fast_fall := true
 var dropped_through_platform := false
 var jump_cut_applied := false
+var initial_position: Vector2
 
 func _ready():
 	floor_max_angle = deg_to_rad(60)
 	sprite.modulate = character_tint
+	initial_position = global_position  # Store where the character started
 
+func respawn(respawn_position: Vector2):
+	velocity = Vector2.ZERO
+	global_position = respawn_position
+
+	jump_count = 0
+	can_fast_fall = true
+	jump_cut_applied = false
+
+	# Optional: reset animation
+	sprite.play("idle")
+	
 func _physics_process(delta):
 	handle_input()
 	apply_physics(delta)

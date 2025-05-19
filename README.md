@@ -9,7 +9,8 @@ Attacks:
 
 Game state:
 - Lives/stock counting
+- Respawn delay + animation
+- Temporary invincibility after respawn
 
 Jumping:
-- Variable height based on how long jump is held
 - Wall jumping
