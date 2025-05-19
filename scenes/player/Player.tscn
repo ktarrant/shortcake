@@ -1,33 +1,24 @@
 [gd_scene load_steps=10 format=3 uid="uid://dqq4w7fimk4gi"]
 
 [ext_resource type="Script" uid="uid://blrxjmmfj02y3" path="res://scripts/Player.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://cd7icjy4jnky7" path="res://assets/sprites/player/strawberry.png" id="2_q3lat"]
+[ext_resource type="Texture2D" uid="uid://ci3e3idcrf8q1" path="res://assets/sprites/player/strawberry/strawberry_idle.png" id="2_tpg5x"]
+[ext_resource type="Texture2D" uid="uid://b53omdctpnvof" path="res://assets/sprites/player/strawberry/strawberry_flap.png" id="3_c3xxp"]
+[ext_resource type="Texture2D" uid="uid://b0waad5pljabm" path="res://assets/sprites/player/strawberry/strawberry_walk0.png" id="4_npwbq"]
+[ext_resource type="Texture2D" uid="uid://hix01l3vvjp6" path="res://assets/sprites/player/strawberry/strawberry_walk1.png" id="5_v42im"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q3lat"]
 radius = 60.0
 height = 140.0
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_q3lat"]
-atlas = ExtResource("2_q3lat")
-region = Rect2(0, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8g4oa"]
-atlas = ExtResource("2_q3lat")
-region = Rect2(0, 1024, 512, 512)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_tok1r"]
-atlas = ExtResource("2_q3lat")
-region = Rect2(0, 0, 512, 512)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ddoul"]
-atlas = ExtResource("2_q3lat")
-region = Rect2(0, 512, 512, 512)
+[sub_resource type="AtlasTexture" id="AtlasTexture_pn6s4"]
+atlas = ExtResource("2_tpg5x")
+region = Rect2(0, 0, 1024, 1024)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_6ysni"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_q3lat")
+"texture": SubResource("AtlasTexture_pn6s4")
 }],
 "loop": true,
 "name": &"idle",
@@ -35,7 +26,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_8g4oa")
+"texture": ExtResource("3_c3xxp")
 }],
 "loop": true,
 "name": &"jump",
@@ -43,10 +34,10 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_tok1r")
+"texture": ExtResource("4_npwbq")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ddoul")
+"texture": ExtResource("5_v42im")
 }],
 "loop": true,
 "name": &"walk",
@@ -69,9 +60,9 @@ shape = SubResource("CapsuleShape2D_q3lat")
 zoom = Vector2(0.5, 0.5)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(0.33, 0.33)
+scale = Vector2(0.2, 0.2)
 sprite_frames = SubResource("SpriteFrames_6ysni")
-animation = &"jump"
+animation = &"walk"
 
 [node name="OverlapArea" type="Area2D" parent="."]
 collision_layer = 8
