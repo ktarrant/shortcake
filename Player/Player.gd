@@ -7,7 +7,7 @@ class_name Player
 @export var max_jumps := 5
 @export var air_control_strength := 0.05
 @export var fast_fall_burst := 700.0
-@export var one_way_platform_layer := 2
+@export var one_way_platform_layer := 3
 @export var jump_cutoff_factor := 0.5
 @export var character_tint := Color(1, 1, 1)
 @export var is_dummy := false

@@ -47,7 +47,7 @@ texture = ExtResource("2_uu6xs")
 [node name="LeftPlatform" type="StaticBody2D" parent="Stage"]
 position = Vector2(-420, -350)
 rotation = -0.349066
-collision_layer = 2
+collision_layer = 4
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Stage/LeftPlatform"]
@@ -62,7 +62,7 @@ texture = ExtResource("3_r0du0")
 [node name="RightPlatform" type="StaticBody2D" parent="Stage"]
 position = Vector2(420, -350)
 rotation = 0.349066
-collision_layer = 2
+collision_layer = 4
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Stage/RightPlatform"]
@@ -76,7 +76,7 @@ texture = ExtResource("3_r0du0")
 
 [node name="TopPlatform" type="StaticBody2D" parent="Stage"]
 position = Vector2(0, -600)
-collision_layer = 2
+collision_layer = 4
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Stage/TopPlatform"]
