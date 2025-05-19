@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://dqq4w7fimk4gi"]
 
-[ext_resource type="Script" uid="uid://blrxjmmfj02y3" path="res://Player/Player.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://cd7icjy4jnky7" path="res://strawberry.png" id="2_q3lat"]
+[ext_resource type="Script" uid="uid://blrxjmmfj02y3" path="res://scripts/Player.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cd7icjy4jnky7" path="res://assets/sprites/player/strawberry.png" id="2_q3lat"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q3lat"]
 radius = 60.0

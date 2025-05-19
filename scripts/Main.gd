@@ -2,7 +2,7 @@ extends Node2D
 
 class_name Main
 
-const Player = preload("res://Player/Player.gd")
+const Player = preload("res://scripts/Player.gd")
 
 @onready var spawn_point = $SpawnPoint
 @onready var player = $Player

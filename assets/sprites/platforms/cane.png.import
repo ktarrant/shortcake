@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnuhjh8b3qnj"
-path="res://.godot/imported/strawberry.png-e30513090e0fe7be5fc6292dfb396bbd.ctex"
+uid="uid://i8xfni3e47dn"
+path="res://.godot/imported/cane.png-90241b55e750b3be8ee2453034535eba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Player/strawberry.png"
-dest_files=["res://.godot/imported/strawberry.png-e30513090e0fe7be5fc6292dfb396bbd.ctex"]
+source_file="res://assets/sprites/platforms/cane.png"
+dest_files=["res://.godot/imported/cane.png-90241b55e750b3be8ee2453034535eba.ctex"]
 
 [params]
 
