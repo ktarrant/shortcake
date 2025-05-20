@@ -15,12 +15,15 @@ class_name Player
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var overlap_area: Area2D = $OverlapArea
 
+const Attack = preload("res://scenes/player/Attack.tscn")
+
 var jump_count := 0
 var can_fast_fall := true
 var dropped_through_platform := false
 var jump_cut_applied := false
 var is_hanging := false  # placeholder if you return to edge grabbing
 var overlapping_player_count := 0
+var percent := 0
 
 func _ready():
 	floor_max_angle = deg_to_rad(60)
@@ -82,6 +85,21 @@ func handle_input():
 		can_fast_fall = true
 		jump_cut_applied = false
 
+	if Input.is_action_just_pressed("attack"):
+		var direction := Vector2.ZERO
+		if Input.is_action_pressed("move_up"):
+			direction = Vector2(0, -1)
+		elif Input.is_action_pressed("move_down"):
+			direction = Vector2(0, 1)
+		elif Input.is_action_pressed("move_left"):
+			direction = Vector2(-1, 0)
+		elif Input.is_action_pressed("move_right"):
+			direction = Vector2(1, 0)
+		else:
+			direction = Vector2(-1 if sprite.flip_h else 1, 0)  # neutral attack
+
+		perform_attack(direction)
+
 func apply_physics(delta):
 	velocity.y += gravity * delta
 
@@ -141,3 +159,14 @@ func respawn(respawn_position: Vector2):
 	is_hanging = false
 	sprite.rotation = 0
 	sprite.play("idle")
+
+func perform_attack(direction: Vector2):
+	var attack = Attack.instantiate()
+	attack.owner = self
+	attack.global_position = global_position + direction.normalized() * 64
+	attack.knockback = direction.normalized() * 200
+	add_sibling(attack)
+
+func apply_damage(amount: int, knockback: Vector2):
+	percent += amount
+	velocity += knockback * (1 + percent / 100.0)  # scaled knockback
