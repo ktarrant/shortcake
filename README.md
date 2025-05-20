@@ -31,11 +31,14 @@
 Attacks:
 - Front kick
 - Down spike
+- Add cooldown for attacks to avoid spam
 
 Game state:
 - Lives/stock counting
 - Respawn delay + animation
 - Temporary invincibility after respawn
+- Add state enum for idle, attacking, hitstun, etc.
+- Tie percent into a floating UI element
 
 Jumping:
 - Wall jumping

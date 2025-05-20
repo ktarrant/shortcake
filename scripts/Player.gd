@@ -38,17 +38,34 @@ func _physics_process(delta):
 	update_sprite_rotation()
 	update_animation()
 
+func get_movement_input(player_id := 0) -> Vector2:
+	var stick_input := Vector2(
+		Input.get_joy_axis(player_id, JOY_AXIS_LEFT_X),
+		-Input.get_joy_axis(player_id, JOY_AXIS_LEFT_Y)
+	)
+
+	var keyboard_input := Vector2.ZERO
+	if Input.is_action_pressed("move_right"):
+		keyboard_input.x += 1
+	if Input.is_action_pressed("move_left"):
+		keyboard_input.x -= 1
+	if Input.is_action_pressed("move_down"):
+		keyboard_input.y -= 1  # Inverted Y
+	if Input.is_action_pressed("move_up"):
+		keyboard_input.y += 1
+
+	var combined := stick_input + keyboard_input
+	return combined.normalized() if combined.length() >= 0.2 else Vector2.ZERO
+
 func handle_input():
 	if is_dummy:
 		return
 
-	var input_direction := 0
-	if Input.is_action_pressed("move_left"):
-		input_direction -= 1
-		sprite.flip_h = true
-	if Input.is_action_pressed("move_right"):
-		input_direction += 1
-		sprite.flip_h = false
+	var input_direction := get_movement_input()
+
+	# Flip sprite based on input
+	if input_direction.x != 0:
+		sprite.flip_h = input_direction.x < 0
 
 	# Apply slowdown if overlapping another player
 	var slowdown_factor := 1.0
@@ -59,17 +76,17 @@ func handle_input():
 	if is_on_floor():
 		var floor_normal = get_floor_normal()
 		var floor_right = Vector2(-floor_normal.y, floor_normal.x)
-		velocity = floor_right * input_direction * speed * slowdown_factor
+		var walk_direction = 1 if input_direction.x > 0 else (-1 if input_direction.x < 0 else 0)
+		velocity = floor_right * walk_direction * speed * slowdown_factor
 	else:
-		if input_direction != 0:
-			velocity.x = lerp(velocity.x, input_direction * speed * slowdown_factor, air_control_strength)
+		if input_direction.x != 0:
+			velocity.x = lerp(velocity.x, input_direction.x * speed * slowdown_factor, air_control_strength)
 
 	# Down input: drop through platform or fast-fall
-	if Input.is_action_just_pressed("move_down"):
+	if input_direction.y < -0.7:
 		if is_on_floor() and get_floor_normal().y < -0.7 and not dropped_through_platform:
 			set_collision_mask_value(one_way_platform_layer, false)
 			dropped_through_platform = true
-			velocity.y += fast_fall_burst
 		elif not is_on_floor() and can_fast_fall:
 			velocity.y += fast_fall_burst
 			can_fast_fall = false
@@ -87,15 +104,8 @@ func handle_input():
 
 	if Input.is_action_just_pressed("attack"):
 		var direction := Vector2.ZERO
-		if Input.is_action_pressed("move_up"):
-			direction = Vector2(0, -1)
-		elif Input.is_action_pressed("move_down"):
-			direction = Vector2(0, 1)
-		elif Input.is_action_pressed("move_left"):
-			direction = Vector2(-1, 0)
-		elif Input.is_action_pressed("move_right"):
-			direction = Vector2(1, 0)
-		elif is_on_floor():
+		# Neutral attack - simple forward jab
+		if is_on_floor():
 			var floor_normal = get_floor_normal()
 			direction = Vector2(-floor_normal.y, floor_normal.x).normalized()
 			if sprite.flip_h:
