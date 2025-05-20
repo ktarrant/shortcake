@@ -95,8 +95,13 @@ func handle_input():
 			direction = Vector2(-1, 0)
 		elif Input.is_action_pressed("move_right"):
 			direction = Vector2(1, 0)
+		elif is_on_floor():
+			var floor_normal = get_floor_normal()
+			direction = Vector2(-floor_normal.y, floor_normal.x).normalized()
+			if sprite.flip_h:
+				direction = -direction
 		else:
-			direction = Vector2(-1 if sprite.flip_h else 1, 0)  # neutral attack
+			direction = Vector2(-1 if sprite.flip_h else 1, 0)  # fallback neutral direction
 
 		perform_attack(direction)
 
