@@ -22,6 +22,7 @@ var can_fast_fall := true
 var dropped_through_platform := false
 var jump_cut_applied := false
 var is_hanging := false  # placeholder if you return to edge grabbing
+var is_attacking := false
 var overlapping_player_count := 0
 var percent := 0
 
@@ -102,7 +103,9 @@ func handle_input():
 		can_fast_fall = true
 		jump_cut_applied = false
 
-	if Input.is_action_just_pressed("attack"):
+	if Input.is_action_just_pressed("attack") and not is_attacking:
+		is_attacking = true
+		sprite.play("neutral_attack")
 		var direction := Vector2.ZERO
 		# Neutral attack - simple forward jab
 		if is_on_floor():
@@ -141,6 +144,9 @@ func update_sprite_rotation():
 		sprite.rotation = lerp_angle(sprite.rotation, 0.0, 0.2)
 
 func update_animation():
+	if is_attacking:
+		return  # Don't override the attack animation
+
 	if is_on_floor():
 		if abs(velocity.x) > 0.1:
 			sprite.play("walk")
@@ -154,14 +160,6 @@ func update_animation():
 				sprite.play("jump_release")
 		else:
 			sprite.play("jump_release")
-
-func _on_OverlapArea_body_entered(body):
-	if body is Player and body != self:
-		overlapping_player_count += 1
-
-func _on_OverlapArea_body_exited(body):
-	if body is Player and body != self:
-		overlapping_player_count = max(overlapping_player_count - 1, 0)
 
 func respawn(respawn_position: Vector2):
 	velocity = Vector2.ZERO
@@ -185,3 +183,16 @@ func perform_attack(direction: Vector2):
 func apply_damage(amount: int, knockback: Vector2):
 	percent += amount
 	velocity += knockback * (1 + percent / 100.0)  # scaled knockback
+
+# ----- Callbacks -----
+func _on_OverlapArea_body_entered(body):
+	if body is Player and body != self:
+		overlapping_player_count += 1
+
+func _on_OverlapArea_body_exited(body):
+	if body is Player and body != self:
+		overlapping_player_count = max(overlapping_player_count - 1, 0)
+
+func _on_AnimatedSprite2D_animation_finished():
+	if sprite.animation == "neutral_attack":
+		is_attacking = false
