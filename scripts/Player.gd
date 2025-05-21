@@ -97,16 +97,15 @@ func handle_input():
 		if is_on_floor() and get_floor_normal().y < -0.7 and not dropped_through_platform:
 			set_collision_mask_value(one_way_platform_layer, false)
 			dropped_through_platform = true
-			base_velocity.y = fast_fall_burst
-			can_fast_fall = false
+			can_fast_fall = true
 		elif not is_on_floor() and can_fast_fall:
-			base_velocity.y = fast_fall_burst
+			base_velocity.y += fast_fall_burst
 			can_fast_fall = false
 
 	# Jump
 	if Input.is_action_just_pressed("jump") and jump_count < max_jumps:
 		if is_on_floor():
-			base_velocity = get_floor_normal().normalized() * jump_force
+			base_velocity += get_floor_normal().normalized() * jump_force
 		else:
 			base_velocity += Vector2(0, -1) * jump_force
 		jump_count += 1
@@ -124,8 +123,14 @@ func handle_input():
 		perform_attack(direction)
 
 func apply_physics(delta):
-	if not is_on_floor():
+	# Only align base_velocity with floor tangent if grounded and not jumping up
+	if is_on_floor() and base_velocity.y >= 0:
+		var floor_normal = get_floor_normal().normalized()
+		var floor_tangent = Vector2(-floor_normal.y, floor_normal.x).normalized()
+		base_velocity = base_velocity.project(floor_tangent)
+	else:
 		base_velocity.y += gravity * delta
+
 	base_velocity.y = clamp(base_velocity.y, -INF, 1200)
 
 	# Basic ground friction to remove residual knockback
