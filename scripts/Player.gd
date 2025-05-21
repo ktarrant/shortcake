@@ -21,16 +21,23 @@ var jump_count := 0
 var can_fast_fall := true
 var dropped_through_platform := false
 var jump_cut_applied := false
-var is_hanging := false  # placeholder if you return to edge grabbing
 var is_attacking := false
 var overlapping_player_count := 0
 var percent := 0
+
+var is_in_hitstun := false
+var hitstun_timer := 0.0
 
 func _ready():
 	floor_max_angle = deg_to_rad(60)
 	sprite.modulate = character_tint
 
 func _physics_process(delta):
+	if is_in_hitstun:
+		hitstun_timer -= delta
+		if hitstun_timer <= 0:
+			is_in_hitstun = false
+
 	handle_input()
 	apply_physics(delta)
 	move_and_slide()
@@ -39,55 +46,50 @@ func _physics_process(delta):
 	update_sprite_rotation()
 	update_animation()
 
-func get_movement_input(player_id := 0) -> Vector2:
-	var stick_input := Vector2(
-		Input.get_joy_axis(player_id, JOY_AXIS_LEFT_X),
-		-Input.get_joy_axis(player_id, JOY_AXIS_LEFT_Y)
+func get_movement_input() -> Vector2:
+	var stick := Vector2(
+		Input.get_joy_axis(0, JOY_AXIS_LEFT_X),
+		-Input.get_joy_axis(0, JOY_AXIS_LEFT_Y)
 	)
 
-	var keyboard_input := Vector2.ZERO
-	if Input.is_action_pressed("move_right"):
-		keyboard_input.x += 1
-	if Input.is_action_pressed("move_left"):
-		keyboard_input.x -= 1
-	if Input.is_action_pressed("move_down"):
-		keyboard_input.y -= 1  # Inverted Y
-	if Input.is_action_pressed("move_up"):
-		keyboard_input.y += 1
+	var keys := Vector2.ZERO
+	if Input.is_action_pressed("move_right"): keys.x += 1
+	if Input.is_action_pressed("move_left"): keys.x -= 1
+	if Input.is_action_pressed("move_down"): keys.y -= 1
+	if Input.is_action_pressed("move_up"): keys.y += 1
 
-	var combined := stick_input + keyboard_input
-	return combined.normalized() if combined.length() >= 0.2 else Vector2.ZERO
+	var combined := stick + keys
+	return combined.normalized() if combined.length() > 0.2 else Vector2.ZERO
 
 func handle_input():
-	if is_dummy:
+	if is_dummy or is_attacking or is_in_hitstun:
 		return
 
-	var input_direction := get_movement_input()
+	var input_dir := get_movement_input()
 
-	# Flip sprite based on input
-	if input_direction.x != 0:
-		sprite.flip_h = input_direction.x < 0
+	if input_dir.x != 0:
+		sprite.flip_h = input_dir.x < 0
 
-	# Apply slowdown if overlapping another player
-	var slowdown_factor := 1.0
-	if overlapping_player_count > 0:
-		slowdown_factor = 0.7
+	var slowdown := 0.7 if overlapping_player_count > 0 else 1.0
 
-	# Walk
 	if is_on_floor():
-		var floor_normal = get_floor_normal()
-		var floor_right = Vector2(-floor_normal.y, floor_normal.x)
-		var walk_direction = 1 if input_direction.x > 0 else (-1 if input_direction.x < 0 else 0)
-		velocity = floor_right * walk_direction * speed * slowdown_factor
+		if input_dir.x != 0:
+			var normal = get_floor_normal()
+			var floor_right = Vector2(-normal.y, normal.x)
+			var dir = sign(input_dir.x)
+			velocity = floor_right * dir * speed * slowdown
+		else:
+			velocity.x = 0
 	else:
-		if input_direction.x != 0:
-			velocity.x = lerp(velocity.x, input_direction.x * speed * slowdown_factor, air_control_strength)
+		if input_dir.x != 0:
+			velocity.x = lerp(velocity.x, input_dir.x * speed * slowdown, air_control_strength)
 
-	# Down input: drop through platform or fast-fall
-	if input_direction.y < -0.7:
+	# Drop-through / fast-fall
+	if input_dir.y < -0.7:
 		if is_on_floor() and get_floor_normal().y < -0.7 and not dropped_through_platform:
 			set_collision_mask_value(one_way_platform_layer, false)
 			dropped_through_platform = true
+			velocity.y += fast_fall_burst
 		elif not is_on_floor() and can_fast_fall:
 			velocity.y += fast_fall_burst
 			can_fast_fall = false
@@ -98,24 +100,18 @@ func handle_input():
 		if is_on_floor():
 			jump_vector = get_floor_normal().normalized()
 		velocity += jump_vector * jump_force
-
 		jump_count += 1
 		can_fast_fall = true
 		jump_cut_applied = false
 
+	# Attack
 	if Input.is_action_just_pressed("attack") and not is_attacking:
 		is_attacking = true
 		sprite.play("neutral_attack")
-		var direction := Vector2.ZERO
-		# Neutral attack - simple forward jab
-		if is_on_floor():
-			var floor_normal = get_floor_normal()
-			direction = Vector2(-floor_normal.y, floor_normal.x).normalized()
-			if sprite.flip_h:
-				direction = -direction
-		else:
-			direction = Vector2(-1 if sprite.flip_h else 1, 0)  # fallback neutral direction
-
+		var normal = get_floor_normal()
+		var direction = Vector2(-normal.y, normal.x).normalized()
+		if sprite.flip_h:
+			direction = -direction
 		perform_attack(direction)
 
 func apply_physics(delta):
@@ -138,14 +134,13 @@ func apply_variable_jump_cut():
 func update_sprite_rotation():
 	if is_on_floor():
 		var normal = get_floor_normal()
-		var angle = atan2(normal.x, -normal.y)
-		sprite.rotation = angle
+		sprite.rotation = atan2(normal.x, -normal.y)
 	else:
 		sprite.rotation = lerp_angle(sprite.rotation, 0.0, 0.2)
 
 func update_animation():
 	if is_attacking:
-		return  # Don't override the attack animation
+		return
 
 	if is_on_floor():
 		if abs(velocity.x) > 0.1:
@@ -154,37 +149,28 @@ func update_animation():
 			sprite.play("idle")
 	else:
 		if velocity.y < 0:
-			if Input.is_action_pressed("jump"):
-				sprite.play("jump_hold")
-			else:
-				sprite.play("jump_release")
+			sprite.play("jump_hold") if Input.is_action_pressed("jump") else sprite.play("jump_release")
 		else:
 			sprite.play("jump_release")
 
-func respawn(respawn_position: Vector2):
-	velocity = Vector2.ZERO
-	global_position = respawn_position
-
-	jump_count = 0
-	can_fast_fall = true
-	dropped_through_platform = false
-	jump_cut_applied = false
-	is_hanging = false
-	sprite.rotation = 0
-	sprite.play("idle")
-
 func perform_attack(direction: Vector2):
 	var attack = Attack.instantiate()
-	attack.owner = self
-	attack.global_position = global_position + direction.normalized() * 64
-	attack.knockback = direction.normalized() * 200
-	add_sibling(attack)
+	attack.attacker = self
+	attack.global_position = global_position + direction * 64
+	attack.knockback = direction * 200
+	get_parent().add_child(attack)
 
 func apply_damage(amount: int, knockback: Vector2):
+	print("apply_damage")
 	percent += amount
-	velocity += knockback * (1 + percent / 100.0)  # scaled knockback
+	velocity += knockback * (1 + percent / 100.0)
+	is_in_hitstun = true
+	hitstun_timer = 0.25  # seconds
 
-# ----- Callbacks -----
+func _on_AnimatedSprite2D_animation_finished():
+	if sprite.animation == "neutral_attack":
+		is_attacking = false
+
 func _on_OverlapArea_body_entered(body):
 	if body is Player and body != self:
 		overlapping_player_count += 1
@@ -193,6 +179,16 @@ func _on_OverlapArea_body_exited(body):
 	if body is Player and body != self:
 		overlapping_player_count = max(overlapping_player_count - 1, 0)
 
-func _on_AnimatedSprite2D_animation_finished():
-	if sprite.animation == "neutral_attack":
-		is_attacking = false
+func respawn(respawn_position: Vector2):
+	global_position = respawn_position
+	velocity = Vector2.ZERO
+	jump_count = 0
+	can_fast_fall = true
+	dropped_through_platform = false
+	jump_cut_applied = false
+	is_attacking = false
+	is_in_hitstun = false
+	hitstun_timer = 0.0
+	percent = 0
+	sprite.rotation = 0
+	sprite.play("idle")

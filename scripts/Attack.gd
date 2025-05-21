@@ -6,6 +6,8 @@ extends Node2D
 
 @onready var shape := $Area2D/CollisionShape2D.shape as Shape2D
 
+var attacker: Player  # instead of 'owner'
+
 func _draw():
 	if shape is CircleShape2D:
 		draw_circle(Vector2.ZERO, shape.radius, Color.RED)
@@ -21,5 +23,5 @@ func _ready():
 	queue_free()
 
 func _on_body_entered(body):
-	if body is Player and body != owner:
+	if body is Player and body != attacker:
 		body.apply_damage(damage, knockback)
