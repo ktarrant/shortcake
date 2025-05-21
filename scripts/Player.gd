@@ -32,6 +32,36 @@ var hitstun_timer := 0.0
 var base_velocity := Vector2.ZERO  # external forces (gravity, knockback)
 var input_velocity := Vector2.ZERO  # user-driven movement
 
+var attack_data := {
+	"neutral_attack": {
+		"animation": "neutral_attack",
+		"direction_func": func():
+			var n = get_floor_normal()
+			var dir = Vector2(-n.y, n.x).normalized()
+			return -dir if sprite.flip_h else dir,
+		"knockback": 200,
+		"damage": 10
+	},
+	"air_neutral_attack": {
+		"animation": "air_neutral_attack",
+		"direction_func": func(): return Vector2(-1, 0) if sprite.flip_h else Vector2(1, 0),
+		"knockback": 150,
+		"damage": 6
+	},
+	"air_up_attack": {
+		"animation": "air_up_attack",
+		"direction_func": func(): return Vector2(0, -1),
+		"knockback": 180,
+		"damage": 8
+	},
+	"air_down_attack": {
+		"animation": "air_down_attack",
+		"direction_func": func(): return Vector2(0, 1),
+		"knockback": 220,
+		"damage": 12
+	}
+}
+
 func _ready():
 	floor_max_angle = deg_to_rad(60)
 	sprite.modulate = character_tint
@@ -115,24 +145,22 @@ func handle_input():
 	# Attack
 	if Input.is_action_just_pressed("attack") and not is_attacking:
 		is_attacking = true
+
+		var key := ""
 		if is_on_floor():
-			sprite.play("neutral_attack")
-			var normal = get_floor_normal()
-			var direction = Vector2(-normal.y, normal.x).normalized()
-			if sprite.flip_h:
-				direction = -direction
-			perform_attack(direction, 200, 10)
+			key = "neutral_attack"
+		elif input_dir.y > 0.5:
+			key = "air_up_attack"
+		elif input_dir.y < -0.5:
+			key = "air_down_attack"
 		else:
-			if input_dir.y > 0.5:
-				sprite.play("air_up_attack")
-				perform_attack(Vector2(0, -1), 180, 8)
-			elif input_dir.y < -0.5:
-				sprite.play("air_down_attack")
-				perform_attack(Vector2(0, 1), 220, 12)
-			else:
-				sprite.play("air_neutral_attack")
-				var direction = Vector2(-1, 0) if sprite.flip_h else Vector2(1, 0)
-				perform_attack(direction, 150, 6)
+			key = "air_neutral_attack"
+
+		var data = attack_data[key]
+		sprite.play(data["animation"])
+		var direction = data["direction_func"].call()
+		perform_attack(direction, data["knockback"], data["damage"])
+
 
 func apply_physics(delta):
 	# Only align base_velocity with floor tangent if grounded and not jumping up
@@ -206,7 +234,7 @@ func apply_damage(amount: int, knockback: Vector2):
 	hitstun_timer = 0.3
 
 func _on_AnimatedSprite2D_animation_finished():
-	if sprite.animation in ["neutral_attack", "air_neutral_attack", "air_up_attack", "air_down_attack"]:
+	if sprite.animation in attack_data.keys():
 		is_attacking = false
 
 func _on_OverlapArea_body_entered(body):
