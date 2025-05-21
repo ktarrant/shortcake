@@ -126,9 +126,12 @@ func handle_input():
 			if input_dir.y > 0.5:
 				sprite.play("air_up_attack")
 				perform_attack(Vector2(0, -1), 180, 8)
+			elif input_dir.y < -0.5:
+				sprite.play("air_down_attack")
+				perform_attack(Vector2(0, 1), 220, 12)
 			else:
 				sprite.play("air_neutral_attack")
-				var direction = Vector2(-1 if sprite.flip_h else 1, 0)
+				var direction = Vector2(-1, 0) if sprite.flip_h else Vector2(1, 0)
 				perform_attack(direction, 150, 6)
 
 func apply_physics(delta):
@@ -203,7 +206,7 @@ func apply_damage(amount: int, knockback: Vector2):
 	hitstun_timer = 0.3
 
 func _on_AnimatedSprite2D_animation_finished():
-	if sprite.animation in ["neutral_attack", "air_neutral_attack", "air_up_attack"]:
+	if sprite.animation in ["neutral_attack", "air_neutral_attack", "air_up_attack", "air_down_attack"]:
 		is_attacking = false
 
 func _on_OverlapArea_body_entered(body):
