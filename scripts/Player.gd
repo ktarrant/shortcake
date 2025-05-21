@@ -81,9 +81,13 @@ func handle_input():
 	if is_on_floor():
 		if input_dir.x != 0:
 			var floor_normal = get_floor_normal()
-			var floor_right = Vector2(-floor_normal.y, floor_normal.x)
-			var dir = sign(input_dir.x)
-			input_velocity = floor_right * dir * speed * slowdown
+			var floor_direction = Vector2(-floor_normal.y, floor_normal.x)
+			if input_dir.x > 0:
+				floor_direction = floor_direction.rotated(0.1)
+			else:
+				floor_direction = (-floor_direction).rotated(-0.1)
+			print("floor_direction: ", floor_direction)
+			input_velocity = floor_direction * speed * slowdown
 		else:
 			input_velocity = Vector2.ZERO
 	else:
