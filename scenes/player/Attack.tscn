@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://wibtcyx3y7iv" path="res://scripts/Attack.gd" id="1_463qt"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_210ii"]
+radius = 20.0
 
 [node name="Attack" type="Node2D"]
 script = ExtResource("1_463qt")

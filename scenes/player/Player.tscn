@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://dqq4w7fimk4gi"]
+[gd_scene load_steps=13 format=3 uid="uid://dqq4w7fimk4gi"]
 
 [ext_resource type="Script" uid="uid://blrxjmmfj02y3" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://ci3e3idcrf8q1" path="res://assets/sprites/player/strawberry/strawberry_idle.png" id="2_tpg5x"]
+[ext_resource type="Texture2D" uid="uid://dap2fhcv7rm4q" path="res://assets/sprites/player/strawberry/strawberry_charge.png" id="2_v42im"]
 [ext_resource type="Texture2D" uid="uid://b53omdctpnvof" path="res://assets/sprites/player/strawberry/strawberry_flap.png" id="3_c3xxp"]
 [ext_resource type="Texture2D" uid="uid://1tmvnaamicdp" path="res://assets/sprites/player/strawberry/strawberry_soar.png" id="4_c3xxp"]
 [ext_resource type="Texture2D" uid="uid://b0waad5pljabm" path="res://assets/sprites/player/strawberry/strawberry_walk0.png" id="4_npwbq"]
@@ -18,6 +19,14 @@ region = Rect2(0, 0, 1024, 1024)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_6ysni"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_v42im")
+}],
+"loop": false,
+"name": &"air_neutral_attack",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_pn6s4")
@@ -83,7 +92,7 @@ zoom = Vector2(0.5, 0.5)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(0.2, 0.2)
 sprite_frames = SubResource("SpriteFrames_6ysni")
-animation = &"neutral_attack"
+animation = &"air_neutral_attack"
 
 [node name="OverlapArea" type="Area2D" parent="."]
 collision_layer = 8

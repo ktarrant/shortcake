@@ -115,12 +115,17 @@ func handle_input():
 	# Attack
 	if Input.is_action_just_pressed("attack") and not is_attacking:
 		is_attacking = true
-		sprite.play("neutral_attack")
-		var normal = get_floor_normal()
-		var direction = Vector2(-normal.y, normal.x).normalized()
-		if sprite.flip_h:
-			direction = -direction
-		perform_attack(direction)
+		if is_on_floor():
+			sprite.play("neutral_attack")
+			var normal = get_floor_normal()
+			var direction = Vector2(-normal.y, normal.x).normalized()
+			if sprite.flip_h:
+				direction = -direction
+			perform_attack(direction, 200, 10)
+		else:
+			sprite.play("air_neutral_attack")
+			var direction = Vector2(-1 if sprite.flip_h else 1, 0)
+			perform_attack(direction, 150, 6)
 
 func apply_physics(delta):
 	# Only align base_velocity with floor tangent if grounded and not jumping up
@@ -179,11 +184,12 @@ func update_animation():
 		else:
 			sprite.play("jump_release")
 
-func perform_attack(direction: Vector2):
+func perform_attack(direction: Vector2, knockback_force: float, damage: int):
 	var attack = Attack.instantiate()
 	attack.attacker = self
 	attack.global_position = global_position + direction * 64
-	attack.knockback = direction * 200
+	attack.knockback = direction * knockback_force
+	attack.damage = damage
 	get_parent().add_child(attack)
 
 func apply_damage(amount: int, knockback: Vector2):
@@ -193,7 +199,7 @@ func apply_damage(amount: int, knockback: Vector2):
 	hitstun_timer = 0.3
 
 func _on_AnimatedSprite2D_animation_finished():
-	if sprite.animation == "neutral_attack":
+	if sprite.animation == "neutral_attack" or sprite.animation == "air_neutral_attack":
 		is_attacking = false
 
 func _on_OverlapArea_body_entered(body):
