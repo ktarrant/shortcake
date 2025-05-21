@@ -9,6 +9,7 @@ class_name Player
 @export var fast_fall_burst := 800.0
 @export var one_way_platform_layer := 3
 @export var jump_cutoff_factor := 0.5
+@export var slope_walk_angle := 0.1
 @export var character_tint := Color(1, 1, 1)
 @export var is_dummy := false
 
@@ -24,20 +25,18 @@ var jump_cut_applied := false
 var is_attacking := false
 var overlapping_player_count := 0
 var percent := 0
-var was_on_floor := false
 
 var is_in_hitstun := false
 var hitstun_timer := 0.0
 
-var base_velocity := Vector2.ZERO  # physics/knockback
-var input_velocity := Vector2.ZERO  # player control
+var base_velocity := Vector2.ZERO  # external forces (gravity, knockback)
+var input_velocity := Vector2.ZERO  # user-driven movement
 
 func _ready():
 	floor_max_angle = deg_to_rad(60)
 	sprite.modulate = character_tint
 
 func _physics_process(delta):
-	# Hitstun countdown
 	if is_in_hitstun:
 		hitstun_timer -= delta
 		if hitstun_timer <= 0:
@@ -56,13 +55,11 @@ func get_movement_input() -> Vector2:
 		Input.get_joy_axis(0, JOY_AXIS_LEFT_X),
 		-Input.get_joy_axis(0, JOY_AXIS_LEFT_Y)
 	)
-
 	var keys := Vector2.ZERO
 	if Input.is_action_pressed("move_right"): keys.x += 1
 	if Input.is_action_pressed("move_left"): keys.x -= 1
 	if Input.is_action_pressed("move_down"): keys.y -= 1
 	if Input.is_action_pressed("move_up"): keys.y += 1
-
 	var combined := stick + keys
 	return combined.normalized() if combined.length() > 0.2 else Vector2.ZERO
 
@@ -71,7 +68,6 @@ func handle_input():
 		return
 
 	var input_dir := get_movement_input()
-
 	if input_dir.x != 0:
 		sprite.flip_h = input_dir.x < 0
 
@@ -82,11 +78,11 @@ func handle_input():
 		if input_dir.x != 0:
 			var floor_normal = get_floor_normal()
 			var floor_direction = Vector2(-floor_normal.y, floor_normal.x)
+			# Apply a small rotation to help smooth movement up slopes
 			if input_dir.x > 0:
-				floor_direction = floor_direction.rotated(0.1)
+				floor_direction = floor_direction.rotated(slope_walk_angle)
 			else:
-				floor_direction = (-floor_direction).rotated(-0.1)
-			print("floor_direction: ", floor_direction)
+				floor_direction = (-floor_direction).rotated(-slope_walk_angle)
 			input_velocity = floor_direction * speed * slowdown
 		else:
 			input_velocity = Vector2.ZERO
@@ -132,12 +128,12 @@ func apply_physics(delta):
 		base_velocity.y += gravity * delta
 	base_velocity.y = clamp(base_velocity.y, -INF, 1200)
 
-	# Friction
+	# Basic ground friction to remove residual knockback
 	if is_on_floor() and abs(base_velocity.x) < 5.0:
 		base_velocity.x = 0.0
 	else:
 		base_velocity.x = lerp(base_velocity.x, 0.0, 0.1)
-	
+
 	velocity = base_velocity + input_velocity
 
 func check_grounded():
@@ -145,12 +141,11 @@ func check_grounded():
 		jump_count = 0
 		can_fast_fall = true
 		jump_cut_applied = false
-
 		if dropped_through_platform:
 			set_collision_mask_value(one_way_platform_layer, true)
 			dropped_through_platform = false
 
-		# Remove velocity into the floor
+		# Cancel velocity into the floor to prevent jitter
 		var floor_normal = get_floor_normal().normalized()
 		var into_floor = base_velocity.project(floor_normal)
 		base_velocity -= into_floor
@@ -190,7 +185,7 @@ func apply_damage(amount: int, knockback: Vector2):
 	percent += amount
 	base_velocity += knockback * (1 + percent / 100.0)
 	is_in_hitstun = true
-	hitstun_timer = 0.3  # adjust for feel
+	hitstun_timer = 0.3
 
 func _on_AnimatedSprite2D_animation_finished():
 	if sprite.animation == "neutral_attack":
