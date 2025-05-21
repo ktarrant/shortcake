@@ -2,11 +2,11 @@ extends CharacterBody2D
 class_name Player
 
 @export var speed := 400.0
-@export var jump_force := 400.0
+@export var jump_force := 600.0
 @export var gravity := 400.0
 @export var max_jumps := 5
 @export var air_control_strength := 0.05
-@export var fast_fall_burst := 600.0
+@export var fast_fall_burst := 800.0
 @export var one_way_platform_layer := 3
 @export var jump_cutoff_factor := 0.5
 @export var character_tint := Color(1, 1, 1)
@@ -92,25 +92,23 @@ func handle_input():
 		else:
 			input_velocity.x = lerp(input_velocity.x, 0.0, 0.1)
 
-	# input_velocity.y = 0  # always controlled by gravity/base_velocity
-
 	# Fast-fall / drop-through
 	if input_dir.y < -0.7:
 		if is_on_floor() and get_floor_normal().y < -0.7 and not dropped_through_platform:
 			set_collision_mask_value(one_way_platform_layer, false)
 			dropped_through_platform = true
-			input_velocity.y = fast_fall_burst
+			base_velocity.y = fast_fall_burst
 			can_fast_fall = false
 		elif not is_on_floor() and can_fast_fall:
-			input_velocity.y = fast_fall_burst
+			base_velocity.y = fast_fall_burst
 			can_fast_fall = false
 
 	# Jump
 	if Input.is_action_just_pressed("jump") and jump_count < max_jumps:
 		if is_on_floor():
-			input_velocity = get_floor_normal().normalized() * jump_force
+			base_velocity = get_floor_normal().normalized() * jump_force
 		else:
-			input_velocity += Vector2(0, -1) * jump_force
+			base_velocity += Vector2(0, -1) * jump_force
 		jump_count += 1
 		can_fast_fall = true
 		jump_cut_applied = false
