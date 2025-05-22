@@ -14,10 +14,16 @@ func update(player: Node, delta: float) -> void:
 	pass
 
 func physics_update(player: Node, delta: float) -> void:
-	pass
+	# Auto-transition to fall if not grounded and falling
+	if not player.is_on_floor() and player.base_velocity.y >= 0:
+		player.change_state(FallState.new())
 	
-func update_animation(player: Node) -> void:
-	pass
+func update_animation(player: Node) -> void:		# rotate sprite to floor
+	if player.is_on_floor():
+		var normal = player.get_floor_normal()
+		player.sprite.rotation = atan2(normal.x, -normal.y)
+	else:
+		player.sprite.rotation = lerp_angle(player.sprite.rotation, 0.0, 0.2)
 
 
 class IdleState:
@@ -39,9 +45,6 @@ class IdleState:
 	func update_animation(player: Node) -> void:
 		player.sprite.play("idle")
 		player.sprite.speed_scale = 1.0
-		# rotate sprite to floor
-		var normal = player.get_floor_normal()
-		player.sprite.rotation = atan2(normal.x, -normal.y)
 
 
 class RunState:
@@ -75,9 +78,6 @@ class RunState:
 			floor_direction = (-floor_direction).rotated(-player.slope_walk_angle)
 		player.input_velocity = floor_direction * current_speed * slowdown
 
-	func physics_update(player: Node, delta: float) -> void:
-		pass
-
 	func update_animation(player: Node) -> void:
 		var input_strength: float = abs(player.get_movement_input().x)
 		if input_strength > player.run_threshold:
@@ -85,9 +85,7 @@ class RunState:
 		else:
 			player.sprite.play("walk")
 		player.sprite.speed_scale = clamp(abs(player.velocity.x) / player.speed, 0.5, 1.5)
-		# rotate sprite to floor
-		var normal = player.get_floor_normal()
-		player.sprite.rotation = atan2(normal.x, -normal.y)
+		super.update_animation(player)
 
 
 class JumpState:
@@ -104,13 +102,15 @@ class JumpState:
 		player.jump_cut_applied = false
 
 	func handle_input(player: Node, input_dir: Vector2) -> void:
-		if player.is_on_floor():
-			player.change_state(IdleState.new())
+		if not Input.is_action_pressed("jump"):
+			if not player.jump_cut_applied and player.base_velocity.y < 0:
+				player.base_velocity.y *= player.jump_cutoff_factor
+				player.jump_cut_applied = true
+			player.change_state(FallState.new())
 
 	func physics_update(player: Node, delta: float) -> void:
 		player.base_velocity.y += player.gravity * delta
 		player.base_velocity.y = clamp(player.base_velocity.y, -INF, 1200)
-
 
 class FallState:
 	extends PlayerState
