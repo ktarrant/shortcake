@@ -12,7 +12,8 @@ class_name Player
 @export var slope_walk_angle := 0.1
 @export var character_tint := Color(1, 1, 1)
 @export var is_dummy := false
-@export var walk_speed_fraction := 0.5
+@export var walk_speed_fraction := 0.7
+@export var run_threshold := 0.70
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var overlap_area: Area2D = $OverlapArea
@@ -103,7 +104,7 @@ func handle_input():
 		sprite.flip_h = input_dir.x < 0
 
 	var input_strength: float = abs(input_dir.x)
-	var run := input_strength > 0.7
+	var run := input_strength > run_threshold
 	var current_speed := speed * input_strength if run else speed * input_strength * walk_speed_fraction
 	var slowdown := 0.7 if overlapping_player_count > 0 else 1.0
 	
@@ -117,7 +118,7 @@ func handle_input():
 				floor_direction = floor_direction.rotated(slope_walk_angle)
 			else:
 				floor_direction = (-floor_direction).rotated(-slope_walk_angle)
-			input_velocity = floor_direction * speed * slowdown
+			input_velocity = floor_direction * current_speed * slowdown
 		else:
 			input_velocity = Vector2.ZERO
 	else:
@@ -218,7 +219,8 @@ func update_animation():
 	if is_on_floor():
 		var input_strength: float = abs(get_movement_input().x)
 		if abs(velocity.x) > 0.1:
-			if input_strength > 0.7:
+			print("input_strength", input_strength)
+			if input_strength > run_threshold:
 				sprite.play("run")
 			else:
 				sprite.play("walk")
