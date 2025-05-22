@@ -2,17 +2,17 @@ extends CharacterBody2D
 class_name Player
 
 @export var speed := 400.0
-@export var jump_force := 600.0
+@export var jump_force := 400.0
 @export var gravity := 400.0
 @export var max_jumps := 5
 @export var air_control_strength := 0.05
 @export var fast_fall_burst := 800.0
 @export var one_way_platform_layer := 3
-@export var jump_cutoff_factor := 0.5
 @export var slope_walk_angle := 0.1
 @export var is_dummy := false
 @export var walk_speed_fraction := 0.7
 @export var run_threshold := 0.70
+@export var jump_extend_max_time := 1.0
 @export var character_tint := Color(1, 1, 1)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -26,7 +26,6 @@ var input_velocity: Vector2 = Vector2.ZERO
 
 var jump_count := 0
 var can_fast_fall := true
-var jump_cut_applied := false
 var overlapping_player_count := 0
 var percent := 0
 
@@ -73,6 +72,8 @@ func land():
 	var floor_normal = get_floor_normal().normalized()
 	var into_floor = base_velocity.project(floor_normal)
 	base_velocity -= into_floor
+	jump_count = 0
+	can_fast_fall = true
 
 func apply_damage(amount: int, knockback: Vector2):
 	percent += amount
@@ -86,7 +87,6 @@ func respawn(respawn_position: Vector2):
 	input_velocity = Vector2.ZERO
 	jump_count = 0
 	can_fast_fall = true
-	jump_cut_applied = false
 	percent = 0
 	sprite.rotation = 0
 	sprite.play("idle")
