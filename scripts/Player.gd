@@ -1,7 +1,7 @@
 extends CharacterBody2D
 class_name Player
 
-@export var speed := 400.0
+@export var speed := 600.0
 @export var jump_force := 600.0
 @export var gravity := 400.0
 @export var max_jumps := 5
@@ -12,6 +12,7 @@ class_name Player
 @export var slope_walk_angle := 0.1
 @export var character_tint := Color(1, 1, 1)
 @export var is_dummy := false
+@export var walk_speed_fraction := 0.5
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var overlap_area: Area2D = $OverlapArea
@@ -101,8 +102,11 @@ func handle_input():
 	if input_dir.x != 0:
 		sprite.flip_h = input_dir.x < 0
 
+	var input_strength: float = abs(input_dir.x)
+	var run := input_strength > 0.7
+	var current_speed := speed * input_strength if run else speed * input_strength * walk_speed_fraction
 	var slowdown := 0.7 if overlapping_player_count > 0 else 1.0
-
+	
 	# Horizontal control
 	if is_on_floor():
 		if input_dir.x != 0:
@@ -212,8 +216,18 @@ func update_animation():
 		return
 
 	if is_on_floor():
-		sprite.play("walk") if abs(velocity.x) > 0.1 else sprite.play("idle")
+		var input_strength: float = abs(get_movement_input().x)
+		if abs(velocity.x) > 0.1:
+			if input_strength > 0.7:
+				sprite.play("run")
+			else:
+				sprite.play("walk")
+			sprite.speed_scale = clamp(abs(velocity.x) / speed, 0.5, 1.5)
+		else:
+			sprite.play("idle")
+			sprite.speed_scale = 1.0
 	else:
+		sprite.speed_scale = 1.0
 		if base_velocity.y < 0:
 			sprite.play("jump_hold") if Input.is_action_pressed("jump") else sprite.play("jump_release")
 		else:

@@ -88,8 +88,19 @@ animations = [{
 "texture": ExtResource("5_v42im")
 }],
 "loop": true,
+"name": &"run",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_npwbq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_v42im")
+}],
+"loop": true,
 "name": &"walk",
-"speed": 5.0
+"speed": 6.0
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tok1r"]
@@ -110,7 +121,7 @@ zoom = Vector2(0.5, 0.5)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(0.2, 0.2)
 sprite_frames = SubResource("SpriteFrames_6ysni")
-animation = &"air_down_attack"
+animation = &"walk"
 
 [node name="OverlapArea" type="Area2D" parent="."]
 collision_layer = 8
