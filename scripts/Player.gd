@@ -33,6 +33,7 @@ var percent := 0
 var state: PlayerState = null
 
 func _ready():
+	floor_max_angle = deg_to_rad(60)
 	sprite.modulate = character_tint
 	change_state(PlayerState.IdleState.new())
 
@@ -64,9 +65,14 @@ func get_movement_input() -> Vector2:
 func change_state(new_state: PlayerState):
 	if state != null:
 		state.exit()
-	print("New state: ", new_state.state_name)
 	state = new_state
 	state.enter(self)
+
+func land():
+	# Cancel velocity into the floor to prevent jitter
+	var floor_normal = get_floor_normal().normalized()
+	var into_floor = base_velocity.project(floor_normal)
+	base_velocity -= into_floor
 
 func apply_damage(amount: int, knockback: Vector2):
 	percent += amount

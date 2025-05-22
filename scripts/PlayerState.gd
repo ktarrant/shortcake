@@ -14,9 +14,14 @@ func update(player: Node, delta: float) -> void:
 	pass
 
 func physics_update(player: Node, delta: float) -> void:
-	# Auto-transition to fall if not grounded and falling
-	if not player.is_on_floor() and player.base_velocity.y >= 0:
-		player.change_state(FallState.new())
+	if player.is_on_floor():
+		player.base_velocity.x = lerp(player.base_velocity.x, 0.0, 0.3)
+		if abs(player.base_velocity.x) < 5.0:
+			player.base_velocity.x = 0
+	else:
+		player.base_velocity.y += player.gravity * delta
+		player.base_velocity.y = clamp(player.base_velocity.y, -INF, 1200)
+		player.base_velocity.x = lerp(player.base_velocity.x, 0.0, 0.1)
 	
 func update_animation(player: Node) -> void:		# rotate sprite to floor
 	if player.is_on_floor():
@@ -28,10 +33,9 @@ func update_animation(player: Node) -> void:		# rotate sprite to floor
 
 class IdleState:
 	extends PlayerState
-	
-	@export var state_name = "IdleState"
 
 	func enter(player: Node) -> void:
+		print("enter state: IdleState")
 		player.sprite.play("idle")
 
 	func handle_input(player: Node, input_dir: Vector2) -> void:
@@ -45,14 +49,21 @@ class IdleState:
 	func update_animation(player: Node) -> void:
 		player.sprite.play("idle")
 		player.sprite.speed_scale = 1.0
+		
+	func physics_update(player: Node, delta: float) -> void:
+		super.physics_update(player, delta)
+		# Auto-transition to fall if not grounded
+		if not player.is_on_floor():
+			player.change_state(AirState.new())
 
 
 class RunState:
 	extends PlayerState
 
-	@export var state_name = "RunState"
+	var state_name = "RunState"
 	
 	func enter(player: Node) -> void:
+		print("enter state: RunState")
 		player.sprite.play("run")
 
 	func handle_input(player: Node, input_dir: Vector2) -> void:
@@ -87,13 +98,43 @@ class RunState:
 		player.sprite.speed_scale = clamp(abs(player.velocity.x) / player.speed, 0.5, 1.5)
 		super.update_animation(player)
 
+	func physics_update(player: Node, delta: float) -> void:
+		super.physics_update(player, delta)
+		# Auto-transition to fall if not grounded
+		if not player.is_on_floor():
+			player.change_state(AirState.new())
 
-class JumpState:
+class AirState:
 	extends PlayerState
-
-	@export var state_name = "JumpState"
 	
 	func enter(player: Node) -> void:
+		print("enter state: AirState")
+		player.sprite.play("jump_release")
+
+	func handle_input(player: Node, input_dir: Vector2) -> void:
+		if input_dir.x < 0:
+			player.sprite.flip_h = true
+		elif input_dir.x > 0:
+			player.sprite.flip_h = false
+
+		var slowdown := 0.7 if player.overlapping_player_count > 0 else 1.0
+		if input_dir.x != 0:
+			player.input_velocity.x = lerp(player.input_velocity.x, input_dir.x * player.speed * slowdown, player.air_control_strength)
+		else:
+			player.input_velocity.x = lerp(player.input_velocity.x, 0.0, 0.1)
+
+	func physics_update(player: Node, delta: float) -> void:
+		super.physics_update(player, delta)		
+		if player.base_velocity.y >= 0 and player.is_on_floor():
+			player.land()
+			player.change_state(IdleState.new())
+
+
+class JumpState:
+	extends AirState
+	
+	func enter(player: Node) -> void:
+		print("enter state: JumpState")
 		player.sprite.play("jump_hold")
 		var jump_vector = player.get_floor_normal().normalized() if player.is_on_floor() else Vector2.UP
 		player.base_velocity += jump_vector * player.jump_force
@@ -103,30 +144,8 @@ class JumpState:
 
 	func handle_input(player: Node, input_dir: Vector2) -> void:
 		if not Input.is_action_pressed("jump"):
-			if not player.jump_cut_applied and player.base_velocity.y < 0:
-				player.base_velocity.y *= player.jump_cutoff_factor
-				player.jump_cut_applied = true
-			player.change_state(FallState.new())
-
-	func physics_update(player: Node, delta: float) -> void:
-		player.base_velocity.y += player.gravity * delta
-		player.base_velocity.y = clamp(player.base_velocity.y, -INF, 1200)
-
-class FallState:
-	extends PlayerState
-
-	@export var state_name = "FallState"
-	
-	func enter(player: Node) -> void:
-		player.sprite.play("jump_release")
-
-	func handle_input(player: Node, input_dir: Vector2) -> void:
-		if player.is_on_floor():
-			player.change_state(IdleState.new())
-
-	func physics_update(player: Node, delta: float) -> void:
-		player.base_velocity.y += player.gravity * delta
-		player.base_velocity.y = clamp(player.base_velocity.y, -INF, 1200)
+			player.change_state(AirState.new())
+		super.handle_input(player, input_dir)
 
 
 class AttackState:
@@ -154,7 +173,7 @@ class AttackState:
 
 	func update(player: Node, delta: float) -> void:
 		if not player.sprite.is_playing():
-			player.change_state(FallState.new())
+			player.change_state(AirState.new())
 
 
 class HitstunState:
@@ -170,7 +189,7 @@ class HitstunState:
 	func update(player: Node, delta: float) -> void:
 		timer -= delta
 		if timer <= 0:
-			player.change_state(FallState.new())
+			player.change_state(AirState.new())
 
 	func physics_update(player: Node, delta: float) -> void:
 		player.base_velocity.y += player.gravity * delta
