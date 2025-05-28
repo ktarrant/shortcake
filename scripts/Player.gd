@@ -25,7 +25,8 @@ var base_velocity: Vector2 = Vector2.ZERO
 var input_velocity: Vector2 = Vector2.ZERO
 
 var jump_count := 0
-var can_fast_fall := true
+var in_fast_fall := false
+var dropped_through_platform := false
 var overlapping_player_count := 0
 var percent := 0
 
@@ -41,6 +42,17 @@ func _physics_process(delta):
 	if not is_dummy:
 		state.handle_input(self, input_dir)
 	state.physics_update(self, delta)
+	
+	# intertia / gravity
+	if is_on_floor():
+		base_velocity.x = lerp(base_velocity.x, 0.0, 0.3)
+		if abs(base_velocity.x) < 5.0:
+			base_velocity.x = 0
+	else:
+		base_velocity.y += gravity * delta
+		base_velocity.y = clamp(base_velocity.y, -INF, 1200)
+		base_velocity.x = lerp(base_velocity.x, 0.0, 0.1)
+	
 	state.update(self, delta)
 
 	velocity = base_velocity + input_velocity
@@ -68,12 +80,16 @@ func change_state(new_state: PlayerState):
 	state.enter(self)
 
 func land():
+	print("land()")
 	# Cancel velocity into the floor to prevent jitter
 	var floor_normal = get_floor_normal().normalized()
 	var into_floor = base_velocity.project(floor_normal)
 	base_velocity -= into_floor
 	jump_count = 0
-	can_fast_fall = true
+	in_fast_fall = false
+	input_velocity = Vector2.ZERO
+	set_collision_mask_value(one_way_platform_layer, true)
+	dropped_through_platform = false
 
 func apply_damage(amount: int, knockback: Vector2):
 	percent += amount
@@ -86,7 +102,8 @@ func respawn(respawn_position: Vector2):
 	base_velocity = Vector2.ZERO
 	input_velocity = Vector2.ZERO
 	jump_count = 0
-	can_fast_fall = true
+	in_fast_fall = false
+	dropped_through_platform = false
 	percent = 0
 	sprite.rotation = 0
 	sprite.play("idle")
