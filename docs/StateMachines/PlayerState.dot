@@ -1,0 +1,36 @@
+digraph PlayerStateMachine {
+    rankdir=LR;
+    node [shape=ellipse, style=filled, fillcolor=lightgray];
+
+    IdleState -> RunState [label="input_dir.x ≠ 0"];
+    IdleState -> JumpState [label="jump"];
+    IdleState -> AttackState [label="attack"];
+    IdleState -> AirState [label="!is_on_floor"];
+
+    RunState -> IdleState [label="input_dir.x == 0"];
+    RunState -> JumpState [label="jump"];
+    RunState -> AttackState [label="attack"];
+    RunState -> AirState [label="!is_on_floor"];
+
+    AirState -> JumpState [label="jump (double)"];
+    AirState -> AttackState [label="attack"];
+    AirState -> IdleState [label="land + no input"];
+    AirState -> RunState [label="land + input_dir.x ≠ 0"];
+
+    JumpState -> AirState [label="!jump or timeout"];
+    JumpState -> AirState [label="jump_extend_time ≤ 0"];
+
+    AttackState -> IdleState [label="land + no input"];
+    AttackState -> RunState [label="land + input_dir.x ≠ 0"];
+    AttackState -> AirState [label="!is_on_floor"];
+
+    // HitstunState -> AirState [label="timer ≤ 0"];
+
+    // Optional: visually group jump-related logic
+    subgraph cluster_air {
+        label="Air Phase";
+        style=dashed;
+        AirState;
+        JumpState;
+    }
+}
