@@ -27,6 +27,7 @@ position = Vector2(10, -205)
 position = Vector2(409, -464)
 is_dummy = true
 character_tint = Color(0.434715, 0.54436, 1, 1)
+player_id = 1
 
 [node name="Stage" type="Node2D" parent="."]
 position = Vector2(-4, -6)

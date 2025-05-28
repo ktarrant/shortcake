@@ -14,6 +14,7 @@ class_name Player
 @export var run_threshold := 0.70
 @export var jump_extend_max_time := 1.0
 @export var character_tint := Color(1, 1, 1)
+@export var player_id := 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var overlap_area: Area2D = $OverlapArea
@@ -43,15 +44,7 @@ func _physics_process(delta):
 		state.handle_input(self, input_dir)
 	state.physics_update(self, delta)
 	
-	# intertia / gravity
-	if is_on_floor():
-		base_velocity.x = lerp(base_velocity.x, 0.0, 0.3)
-		if abs(base_velocity.x) < 5.0:
-			base_velocity.x = 0
-	else:
-		base_velocity.y += gravity * delta
-		base_velocity.y = clamp(base_velocity.y, -INF, 1200)
-		base_velocity.x = lerp(base_velocity.x, 0.0, 0.1)
+	_global_physics_process(delta)
 	
 	state.update(self, delta)
 
@@ -60,16 +53,35 @@ func _physics_process(delta):
 	
 	state.update_animation(self)
 
+
+func _global_physics_process(delta):
+	# intertia / gravity
+	if is_on_floor():
+		var floor_normal = get_floor_normal()
+		var floor_direction = Vector2(-floor_normal.y, floor_normal.x)
+		base_velocity.x = lerp(base_velocity.x, 0.0, 0.3)
+		if abs(base_velocity.x) < 5.0:
+			base_velocity.x = 0
+		elif base_velocity.x > 0:
+			floor_direction = floor_direction.rotated(slope_walk_angle)
+		elif base_velocity.x < 0:
+			floor_direction = (-floor_direction).rotated(-slope_walk_angle)
+	else:
+		base_velocity.y += gravity * delta
+		base_velocity.y = clamp(base_velocity.y, -INF, 1200)
+		base_velocity.x = lerp(base_velocity.x, 0.0, 0.1)
+
 func get_movement_input() -> Vector2:
 	var stick := Vector2(
-		Input.get_joy_axis(0, JOY_AXIS_LEFT_X),
-		-Input.get_joy_axis(0, JOY_AXIS_LEFT_Y)
+		Input.get_joy_axis(player_id, JOY_AXIS_LEFT_X),
+		-Input.get_joy_axis(player_id, JOY_AXIS_LEFT_Y)
 	)
 	var keys := Vector2.ZERO
-	if Input.is_action_pressed("move_right"): keys.x += 1
-	if Input.is_action_pressed("move_left"): keys.x -= 1
-	if Input.is_action_pressed("move_down"): keys.y -= 1
-	if Input.is_action_pressed("move_up"): keys.y += 1
+	if player_id == 0:
+		if Input.is_action_pressed("move_right"): keys.x += 1
+		if Input.is_action_pressed("move_left"): keys.x -= 1
+		if Input.is_action_pressed("move_down"): keys.y -= 1
+		if Input.is_action_pressed("move_up"): keys.y += 1
 	var combined := stick + keys
 	return combined.normalized() if combined.length() > 0.2 else Vector2.ZERO
 
@@ -94,7 +106,8 @@ func land():
 func apply_damage(amount: int, knockback: Vector2):
 	percent += amount
 	base_velocity += knockback * (1 + percent / 100.0)
-	change_state(PlayerState.HitstunState.new())
+	# TODO: Put hit target into HitstunState only if damage is high enough
+	# change_state(PlayerState.HitstunState.new())
 
 func respawn(respawn_position: Vector2):
 	global_position = respawn_position

@@ -1,6 +1,42 @@
 extends Node
 class_name PlayerState
 
+
+var attack_data := {
+	"neutral_attack": {
+		"animation": "neutral_attack",
+		"direction_func": func(player):
+			var n = player.get_floor_normal()
+			var dir = Vector2(-n.y, n.x).normalized()
+			return -dir if player.sprite.flip_h else dir,
+		"knockback": 200,
+		"damage": 10
+	},
+	"air_neutral_attack": {
+		"animation": "air_neutral_attack",
+		"direction_func": func(player): return (
+			Vector2(-1, 0)
+			if player.sprite.flip_h
+			else Vector2(1, 0)
+		),
+		"knockback": 150,
+		"damage": 6
+	},
+	"air_up_attack": {
+		"animation": "air_up_attack",
+		"direction_func": func(player): return Vector2(0, -1),
+		"knockback": 180,
+		"damage": 8
+	},
+	"air_down_attack": {
+		"animation": "air_down_attack",
+		"direction_func": func(player): return Vector2(0, 1),
+		"knockback": 220,
+		"damage": 12
+	}
+}
+
+
 func enter(player: Node) -> void:
 	pass
 
@@ -37,6 +73,8 @@ class IdleState:
 			player.change_state(RunState.new())
 		elif Input.is_action_just_pressed("jump"):
 			player.change_state(JumpState.new())
+		elif Input.is_action_just_pressed("attack"):
+			player.change_state(AttackState.new("neutral_attack", player))
 		elif input_dir.y < -0.7 and player.get_floor_normal().y < -0.7 and not player.dropped_through_platform:
 			player.set_collision_mask_value(player.one_way_platform_layer, false)
 			player.dropped_through_platform = true
@@ -66,6 +104,8 @@ class RunState:
 	func handle_input(player: Node, input_dir: Vector2) -> void:
 		if Input.is_action_just_pressed("jump"):
 			player.change_state(JumpState.new())
+		elif Input.is_action_just_pressed("attack"):
+			player.change_state(AttackState.new("neutral_attack", player))
 		elif input_dir.y < -0.7 and player.get_floor_normal().y < -0.7 and not player.dropped_through_platform:
 			player.set_collision_mask_value(player.one_way_platform_layer, false)
 			player.dropped_through_platform = true
@@ -104,6 +144,7 @@ class RunState:
 	func physics_update(player: Node, delta: float) -> void:
 		super.physics_update(player, delta)
 
+
 class AirState:
 	extends PlayerState
 	
@@ -120,6 +161,15 @@ class AirState:
 		if (Input.is_action_just_pressed("jump")
 			and player.jump_count < player.max_jumps):
 			player.change_state(JumpState.new())
+		elif Input.is_action_just_pressed("attack"):
+			var key := ""
+			if input_dir.y > 0.5:
+				key = "air_up_attack"
+			elif input_dir.y < -0.5:
+				key = "air_down_attack"
+			else:
+				key = "air_neutral_attack"
+			player.change_state(AttackState.new(key, player))
 		elif input_dir.y < -0.7 and not player.in_fast_fall:
 			player.base_velocity.y += player.fast_fall_burst
 			player.in_fast_fall = true
@@ -163,7 +213,7 @@ class JumpState:
 		if not Input.is_action_pressed("jump"):
 			player.change_state(AirState.new())
 		super.handle_input(player, input_dir)
-		
+	
 	func physics_update(player: Node, delta: float) -> void:
 		if jump_extend_time > 0:
 			jump_extend_time -= delta
@@ -184,13 +234,14 @@ class AttackState:
 	var knockback: float
 	var damage: int
 
-	func _init(_dir: Vector2, _knockback: float, _damage: int) -> void:
-		direction = _dir
-		knockback = _knockback
-		damage = _damage
+	func _init(_attack: String, _player: Player) -> void:
+		var data = attack_data[_attack]
+		_player.sprite.play(data["animation"])
+		direction = data["direction_func"].call(_player)
+		knockback = data["knockback"]
+		damage = data["damage"]
 
 	func enter(player: Node) -> void:
-		player.sprite.play("neutral_attack")
 		var attack = player.Attack.instantiate()
 		attack.attacker = player
 		attack.global_position = player.global_position + direction * 64
@@ -200,7 +251,13 @@ class AttackState:
 
 	func update(player: Node, delta: float) -> void:
 		if not player.sprite.is_playing():
-			player.change_state(AirState.new())
+			if player.is_on_floor():
+				if player.get_movement_input().x != 0:
+					player.change_state(RunState.new())
+				else:
+					player.change_state(IdleState.new())
+			else:
+				player.change_state(AirState.new())
 
 
 class HitstunState:
