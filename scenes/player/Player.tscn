@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://dqq4w7fimk4gi"]
+[gd_scene load_steps=17 format=3 uid="uid://dqq4w7fimk4gi"]
 
 [ext_resource type="Script" uid="uid://blrxjmmfj02y3" path="res://scripts/Player.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://cicry5qh3vind" path="res://assets/sprites/player/strawberry/strawberry_cannonball.png" id="2_7oing"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://yaojhy8atwxi" path="res://assets/sprites/player/strawberry/strawberry_air_punch.png" id="3_pn6s4"]
 [ext_resource type="Texture2D" uid="uid://1tmvnaamicdp" path="res://assets/sprites/player/strawberry/strawberry_soar.png" id="4_c3xxp"]
 [ext_resource type="Texture2D" uid="uid://b0waad5pljabm" path="res://assets/sprites/player/strawberry/strawberry_walk0.png" id="4_npwbq"]
+[ext_resource type="Texture2D" uid="uid://c7826mu5rob7j" path="res://assets/sprites/player/strawberry/strawberry_downpunch.png" id="5_180ig"]
 [ext_resource type="Texture2D" uid="uid://bffomkuwfq82j" path="res://assets/sprites/player/strawberry/strawberry_punch.png" id="5_npwbq"]
 [ext_resource type="Texture2D" uid="uid://hix01l3vvjp6" path="res://assets/sprites/player/strawberry/strawberry_walk1.png" id="5_v42im"]
 [ext_resource type="Texture2D" uid="uid://dx5akw6n7cy3l" path="res://assets/sprites/player/strawberry/strawberry_shield.png" id="11_5stf6"]
@@ -44,6 +45,14 @@ animations = [{
 }],
 "loop": false,
 "name": &"air_up_attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_180ig")
+}],
+"loop": true,
+"name": &"hitstun",
 "speed": 5.0
 }, {
 "frames": [{
@@ -130,7 +139,7 @@ zoom = Vector2(0.5, 0.5)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(0.2, 0.2)
 sprite_frames = SubResource("SpriteFrames_6ysni")
-animation = &"shield"
+animation = &"hitstun"
 
 [node name="OverlapArea" type="Area2D" parent="."]
 collision_layer = 8

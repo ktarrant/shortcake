@@ -241,7 +241,6 @@ class AttackState:
 	var damage: int
 
 	func _init(_attack: String, _player: Player) -> void:
-		print("enter state: AttackState")
 		var data = attack_data[_attack]
 		_player.sprite.play(data["animation"])
 		direction = data["direction_func"].call(_player)
@@ -249,6 +248,7 @@ class AttackState:
 		damage = data["damage"]
 
 	func enter(player: Node) -> void:
+		print("enter state: AttackState")
 		var attack = player.Attack.instantiate()
 		attack.attacker = player
 		attack.global_position = player.global_position + direction * 64
@@ -271,7 +271,10 @@ class AttackState:
 class HitstunState:
 	extends PlayerState
 	
-	var timer: float = 0.3
+	var timer: float
+	
+	func _init(hitstun_time: float) -> void:
+		timer = hitstun_time
 
 	func enter(player: Node) -> void:
 		player.sprite.play("hitstun")
@@ -322,6 +325,6 @@ class ShieldState:
 			player.base_velocity += knockback * player.reduced_knockback_factor
 			if player.shield_health <= 0.0:
 				player.sprite.modulate = player.character_tint
-				player.change_state(HitstunState.new())
+				player.change_state(HitstunState.new(player.shield_break_hitstun_time))
 		else:
 			player.apply_damage(amount, knockback)

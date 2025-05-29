@@ -20,6 +20,9 @@ class_name Player
 @export var shield_regen_rate: float = 20.0  # per second
 @export var shield_drain_rate: float = 10.0  # per second
 @export var reduced_knockback_factor: float = 0.3
+@export var hitstun_time_factor: float = 0.03 # 3 seconds per 100 damage
+@export var max_hitstun_time: float = 1.0 # max 1 second hitstun
+@export var shield_break_hitstun_time: float = 1.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var overlap_area: Area2D = $OverlapArea
@@ -115,9 +118,11 @@ func apply_damage(amount: int, knockback: Vector2):
 	else:
 		percent += amount
 		base_velocity += knockback * (1 + percent / 100.0)
-	# TODO: Put hit target into HitstunState only if damage is high enough
-	# TODO: Put hit target into HitstunState if the shield is broken
-	# change_state(PlayerState.HitstunState.new())
+		print("took damage: ", amount)
+		var hitstun_time = min(
+			hitstun_time_factor * amount * (percent / 100.0),
+			max_hitstun_time)
+		change_state(PlayerState.HitstunState.new(hitstun_time))
 
 func respawn(respawn_position: Vector2):
 	global_position = respawn_position
