@@ -15,6 +15,11 @@ class_name Player
 @export var jump_extend_max_time := 1.0
 @export var character_tint := Color(1, 1, 1)
 @export var player_id := 0
+@export var max_shield_health: float = 100.0
+@export var min_shield_activation: float = 25.0
+@export var shield_regen_rate: float = 20.0  # per second
+@export var shield_drain_rate: float = 10.0  # per second
+@export var reduced_knockback_factor: float = 0.3
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var overlap_area: Area2D = $OverlapArea
@@ -30,6 +35,7 @@ var in_fast_fall := false
 var dropped_through_platform := false
 var overlapping_player_count := 0
 var percent := 0
+var shield_health: float = 100.0
 
 var state: PlayerState = null
 
@@ -104,9 +110,13 @@ func land():
 	dropped_through_platform = false
 
 func apply_damage(amount: int, knockback: Vector2):
-	percent += amount
-	base_velocity += knockback * (1 + percent / 100.0)
+	if "apply_damage" in state:
+		state.apply_damage(self, amount, knockback)
+	else:
+		percent += amount
+		base_velocity += knockback * (1 + percent / 100.0)
 	# TODO: Put hit target into HitstunState only if damage is high enough
+	# TODO: Put hit target into HitstunState if the shield is broken
 	# change_state(PlayerState.HitstunState.new())
 
 func respawn(respawn_position: Vector2):

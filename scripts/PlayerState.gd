@@ -47,7 +47,7 @@ func handle_input(player: Node, input_dir: Vector2) -> void:
 	pass
 
 func update(player: Node, delta: float) -> void:
-	pass
+	player.shield_health = min(player.shield_health + player.shield_regen_rate * delta, player.max_shield_health)
 
 func physics_update(player: Node, delta: float) -> void:
 	pass
@@ -75,6 +75,8 @@ class IdleState:
 			player.change_state(JumpState.new())
 		elif Input.is_action_just_pressed("attack"):
 			player.change_state(AttackState.new("neutral_attack", player))
+		elif Input.is_action_pressed("shield") and player.shield_health > player.min_shield_activation:
+			player.change_state(ShieldState.new())
 		elif input_dir.y < -0.7 and player.get_floor_normal().y < -0.7 and not player.dropped_through_platform:
 			player.set_collision_mask_value(player.one_way_platform_layer, false)
 			player.dropped_through_platform = true
@@ -106,6 +108,8 @@ class RunState:
 			player.change_state(JumpState.new())
 		elif Input.is_action_just_pressed("attack"):
 			player.change_state(AttackState.new("neutral_attack", player))
+		elif Input.is_action_pressed("shield") and player.shield_health > player.min_shield_activation:
+			player.change_state(ShieldState.new())
 		elif input_dir.y < -0.7 and player.get_floor_normal().y < -0.7 and not player.dropped_through_platform:
 			player.set_collision_mask_value(player.one_way_platform_layer, false)
 			player.dropped_through_platform = true
@@ -115,6 +119,8 @@ class RunState:
 			player.sprite.flip_h = true
 		elif input_dir.x > 0:
 			player.sprite.flip_h = false
+		if player.state is not RunState:
+			return
 		
 		var input_strength: float = abs(input_dir.x)
 		var run: float = input_strength > player.run_threshold
@@ -173,6 +179,8 @@ class AirState:
 		elif input_dir.y < -0.7 and not player.in_fast_fall:
 			player.base_velocity.y += player.fast_fall_burst
 			player.in_fast_fall = true
+		if player.state is not AirState:
+			return
 
 		var slowdown := 0.7 if player.overlapping_player_count > 0 else 1.0
 		if input_dir.x != 0:
@@ -227,14 +235,13 @@ class JumpState:
 
 class AttackState:
 	extends PlayerState
-
-	@export var state_name = "AttackState"
 	
 	var direction: Vector2
 	var knockback: float
 	var damage: int
 
 	func _init(_attack: String, _player: Player) -> void:
+		print("enter state: AttackState")
 		var data = attack_data[_attack]
 		_player.sprite.play(data["animation"])
 		direction = data["direction_func"].call(_player)
@@ -250,6 +257,7 @@ class AttackState:
 		player.get_parent().add_child(attack)
 
 	func update(player: Node, delta: float) -> void:
+		super.update(player, delta)
 		if not player.sprite.is_playing():
 			if player.is_on_floor():
 				if player.get_movement_input().x != 0:
@@ -262,8 +270,6 @@ class AttackState:
 
 class HitstunState:
 	extends PlayerState
-
-	@export var state_name = "HitstunState"
 	
 	var timer: float = 0.3
 
@@ -272,10 +278,50 @@ class HitstunState:
 		player.input_velocity = Vector2.ZERO
 
 	func update(player: Node, delta: float) -> void:
+		super.update(player, delta)
 		timer -= delta
 		if timer <= 0:
 			player.change_state(AirState.new())
 
+
+class ShieldState:
+	extends PlayerState
+
+	func enter(player: Node) -> void:
+		print("enter state: ShieldState")
+		player.sprite.play("shield")
+		player.input_velocity = Vector2.ZERO
+
+	func handle_input(player: Node, input_dir: Vector2) -> void:
+		if not Input.is_action_pressed("shield"):
+			player.sprite.modulate = player.character_tint
+			player.change_state(IdleState.new())
+		elif input_dir.x != 0:
+			player.sprite.flip_h = input_dir.x < 0
+
+	func update(player: Node, delta: float) -> void:
+		player.shield_health = max(player.shield_health - player.shield_drain_rate * delta, 0.0)
+		if player.shield_health <= 0.0:
+			player.sprite.modulate = player.character_tint
+			player.change_state(IdleState.new())
+
 	func physics_update(player: Node, delta: float) -> void:
-		player.base_velocity.y += player.gravity * delta
-		player.base_velocity.y = clamp(player.base_velocity.y, -INF, 1200)
+		# Auto-transition to fall if not grounded
+		if not player.is_on_floor():
+			player.change_state(AirState.new())
+			
+	func update_animation(player: Node) -> void:
+		super.update_animation(player)
+		var health_ratio: float = player.shield_health / player.max_shield_health
+		var tint_strength: float = 1.0 - lerp(0.4, 1.0, health_ratio)  # darker when shield is low
+		player.sprite.modulate = player.character_tint.darkened(tint_strength)
+
+	func apply_damage(player: Node, amount: int, knockback: Vector2) -> void:
+		if player.shield_health > 0.0:
+			player.shield_health -= amount
+			player.base_velocity += knockback * player.reduced_knockback_factor
+			if player.shield_health <= 0.0:
+				player.sprite.modulate = player.character_tint
+				player.change_state(HitstunState.new())
+		else:
+			player.apply_damage(amount, knockback)
