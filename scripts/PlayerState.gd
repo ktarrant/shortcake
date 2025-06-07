@@ -212,7 +212,7 @@ class JumpState:
 							if player.is_on_floor() else
 							Vector2.UP)
 		var modifier = 1.0 if player.is_on_floor() else 0.7
-		player.base_velocity += jump_vector * player.jump_force * modifier
+		player.base_velocity = jump_vector * player.jump_force * modifier
 		player.jump_count += 1
 		player.in_fast_fall = false
 		jump_extend_time = player.jump_extend_max_time
@@ -227,7 +227,7 @@ class JumpState:
 			jump_extend_time -= delta
 			player.base_velocity.y -= (
 				jump_extend_time / player.jump_extend_max_time
-				 * player.speed * player.air_control_strength
+				 * player.jump_force
 				* delta)
 		else:
 			player.change_state(AirState.new())
