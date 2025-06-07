@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://b1medohf0ugns"]
+[gd_scene load_steps=11 format=3 uid="uid://b1medohf0ugns"]
 
 [ext_resource type="Script" uid="uid://dvxdmn76sxxto" path="res://scripts/Main.gd" id="1_gyg6b"]
 [ext_resource type="PackedScene" uid="uid://dqq4w7fimk4gi" path="res://scenes/player/Player.tscn" id="2_dc040"]
 [ext_resource type="Texture2D" uid="uid://86e6g2oit01l" path="res://assets/sprites/platforms/platform.png" id="3_1rhdn"]
 [ext_resource type="Texture2D" uid="uid://i8xfni3e47dn" path="res://assets/sprites/platforms/cane.png" id="4_sjxhf"]
 [ext_resource type="Texture2D" uid="uid://8orck21hf6kr" path="res://assets/backgrounds/background.png" id="5_dc040"]
+[ext_resource type="PackedScene" uid="uid://b4gskdns6cc23" path="res://scenes/player/PlayerUI.tscn" id="6_1rhdn"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(1270, 256)
@@ -21,7 +22,7 @@ size = Vector2(256, 3200)
 [node name="Main" type="Node2D"]
 script = ExtResource("1_gyg6b")
 
-[node name="Player" parent="." instance=ExtResource("2_dc040")]
+[node name="Player1" parent="." instance=ExtResource("2_dc040")]
 position = Vector2(10, -205)
 
 [node name="Player2" parent="." instance=ExtResource("2_dc040")]
@@ -136,5 +137,15 @@ texture = ExtResource("5_dc040")
 offset = Vector2(0, -400)
 region_enabled = true
 region_rect = Rect2(0, 0, 6000, 6000)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PlayerUI1" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
+
+[node name="PlayerUI2" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
+
+[node name="PlayerUI3" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
+
+[node name="PlayerUI4" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]

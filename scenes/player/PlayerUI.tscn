@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://b4gskdns6cc23"]
+
+[ext_resource type="Script" uid="uid://c13cr8jrcya8k" path="res://scripts/PlayerUI.gd" id="1_f7lci"]
+[ext_resource type="Texture2D" uid="uid://ci3e3idcrf8q1" path="res://assets/sprites/player/strawberry/strawberry_idle.png" id="2_dwui3"]
+
+[node name="PlayerUi" type="Node2D"]
+script = ExtResource("1_f7lci")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer"]
+layout_mode = 2
+texture = ExtResource("2_dwui3")
+
+[node name="Label" type="Label" parent="MarginContainer"]
+layout_mode = 2
