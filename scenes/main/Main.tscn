@@ -30,6 +30,18 @@ is_dummy = true
 character_tint = Color(0.434715, 0.54436, 1, 1)
 player_id = 1
 
+[node name="Player3" parent="." instance=ExtResource("2_dc040")]
+position = Vector2(-409, -464)
+is_dummy = true
+character_tint = Color(0.434715, 0.54436, 1, 1)
+player_id = 2
+
+[node name="Player4" parent="." instance=ExtResource("2_dc040")]
+position = Vector2(0, -700)
+is_dummy = true
+character_tint = Color(0.434715, 0.54436, 1, 1)
+player_id = 3
+
 [node name="Stage" type="Node2D" parent="."]
 position = Vector2(-4, -6)
 
