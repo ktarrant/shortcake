@@ -114,6 +114,7 @@ shape = SubResource("RectangleShape2D_r0du0")
 [node name="Parallax2D" type="ParallaxBackground" parent="."]
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="Parallax2D"]
+motion_scale = Vector2(0.5, 0.5)
 
 [node name="Sprite2D" type="Sprite2D" parent="Parallax2D/ParallaxLayer"]
 z_index = -2
@@ -122,6 +123,6 @@ position = Vector2(-2, -322)
 texture = ExtResource("5_dc040")
 offset = Vector2(0, -400)
 region_enabled = true
-region_rect = Rect2(0, 0, 4000, 3300)
+region_rect = Rect2(0, 0, 6000, 6000)
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]
