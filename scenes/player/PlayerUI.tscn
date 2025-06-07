@@ -1,18 +1,49 @@
-[gd_scene load_steps=3 format=3 uid="uid://b4gskdns6cc23"]
+[gd_scene load_steps=5 format=3 uid="uid://b4gskdns6cc23"]
 
 [ext_resource type="Script" uid="uid://c13cr8jrcya8k" path="res://scripts/PlayerUI.gd" id="1_f7lci"]
 [ext_resource type="Texture2D" uid="uid://ci3e3idcrf8q1" path="res://assets/sprites/player/strawberry/strawberry_idle.png" id="2_dwui3"]
 
+[sub_resource type="SystemFont" id="SystemFont_dwui3"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_hl6yw"]
+font = SubResource("SystemFont_dwui3")
+font_size = 128
+font_color = Color(0, 0, 0, 1)
+
 [node name="PlayerUi" type="Node2D"]
+scale = Vector2(0.5, 0.5)
 script = ExtResource("1_f7lci")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Control" type="Control" parent="."]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 128.0
+offset_bottom = 128.0
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Control"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -256.0
+offset_top = -256.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="TextureRect" type="TextureRect" parent="Control/MarginContainer"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 texture = ExtResource("2_dwui3")
+expand_mode = 3
+stretch_mode = 5
 
-[node name="Label" type="Label" parent="MarginContainer"]
+[node name="Label" type="Label" parent="Control/MarginContainer/TextureRect"]
 layout_mode = 2
+offset_top = 116.0
+offset_right = 256.0
+offset_bottom = 139.0
+label_settings = SubResource("LabelSettings_hl6yw")

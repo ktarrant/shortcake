@@ -140,12 +140,32 @@ region_rect = Rect2(0, 0, 6000, 6000)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="PlayerUI1" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
 
-[node name="PlayerUI2" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
+[node name="PlayerUI1" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player1")
 
-[node name="PlayerUI3" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
+[node name="PlayerUI2" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player2")
 
-[node name="PlayerUI4" parent="CanvasLayer" instance=ExtResource("6_1rhdn")]
+[node name="PlayerUI3" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player3")
+
+[node name="PlayerUI4" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player4")
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]

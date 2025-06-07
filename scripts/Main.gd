@@ -8,11 +8,11 @@ const Player = preload("res://scripts/Player.gd")
 @onready var death_zone = $DeathZone
 
 
-func _ready():
-	$UI/PlayerUI1.player = $Player1
-	$UI/PlayerUI2.player = $Player2
-	$UI/PlayerUI3.player = $Player3
-	$UI/PlayerUI4.player = $Player4
+#func _ready():
+	#$UI/PlayerUI1.player = $Player1
+	#$UI/PlayerUI2.player = $Player2
+	#$UI/PlayerUI3.player = $Player3
+	#$UI/PlayerUI4.player = $Player4
 
 func _on_DeathZone_body_entered(body):
 	if body is Player:
