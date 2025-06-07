@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://b1medohf0ugns"]
+[gd_scene load_steps=10 format=3 uid="uid://b1medohf0ugns"]
 
 [ext_resource type="Script" uid="uid://dvxdmn76sxxto" path="res://scripts/Main.gd" id="1_gyg6b"]
 [ext_resource type="PackedScene" uid="uid://dqq4w7fimk4gi" path="res://scenes/player/Player.tscn" id="2_dc040"]
 [ext_resource type="Texture2D" uid="uid://86e6g2oit01l" path="res://assets/sprites/platforms/platform.png" id="3_1rhdn"]
 [ext_resource type="Texture2D" uid="uid://i8xfni3e47dn" path="res://assets/sprites/platforms/cane.png" id="4_sjxhf"]
+[ext_resource type="Texture2D" uid="uid://8orck21hf6kr" path="res://assets/backgrounds/background.png" id="5_dc040"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(1270, 256)
@@ -109,5 +110,14 @@ shape = SubResource("RectangleShape2D_cm0pq")
 [node name="TopDeathZone" type="CollisionShape2D" parent="DeathZone"]
 position = Vector2(5, -2937)
 shape = SubResource("RectangleShape2D_r0du0")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = -2
+texture_repeat = 2
+position = Vector2(-2, -322)
+texture = ExtResource("5_dc040")
+offset = Vector2(0, -400)
+region_enabled = true
+region_rect = Rect2(0, 0, 4000, 3300)
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]
