@@ -1,10 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://b1medohf0ugns"]
+[gd_scene load_steps=12 format=3 uid="uid://b1medohf0ugns"]
 
 [ext_resource type="Script" uid="uid://dvxdmn76sxxto" path="res://scripts/Main.gd" id="1_gyg6b"]
 [ext_resource type="PackedScene" uid="uid://dqq4w7fimk4gi" path="res://scenes/player/Player.tscn" id="2_dc040"]
 [ext_resource type="Texture2D" uid="uid://86e6g2oit01l" path="res://assets/sprites/platforms/platform.png" id="3_1rhdn"]
 [ext_resource type="Texture2D" uid="uid://i8xfni3e47dn" path="res://assets/sprites/platforms/cane.png" id="4_sjxhf"]
 [ext_resource type="Texture2D" uid="uid://8orck21hf6kr" path="res://assets/backgrounds/background.png" id="5_dc040"]
+[ext_resource type="PackedScene" uid="uid://b4gskdns6cc23" path="res://scenes/player/PlayerUI.tscn" id="6_1rhdn"]
+[ext_resource type="Script" uid="uid://ylm3hl20djy8" path="res://scripts/CameraController.gd" id="7_sjxhf"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(1270, 256)
@@ -21,7 +23,7 @@ size = Vector2(256, 3200)
 [node name="Main" type="Node2D"]
 script = ExtResource("1_gyg6b")
 
-[node name="Player" parent="." instance=ExtResource("2_dc040")]
+[node name="Player1" parent="." instance=ExtResource("2_dc040")]
 position = Vector2(10, -205)
 
 [node name="Player2" parent="." instance=ExtResource("2_dc040")]
@@ -29,6 +31,18 @@ position = Vector2(409, -464)
 is_dummy = true
 character_tint = Color(0.434715, 0.54436, 1, 1)
 player_id = 1
+
+[node name="Player3" parent="." instance=ExtResource("2_dc040")]
+position = Vector2(-409, -464)
+is_dummy = true
+character_tint = Color(0.434715, 0.54436, 1, 1)
+player_id = 2
+
+[node name="Player4" parent="." instance=ExtResource("2_dc040")]
+position = Vector2(0, -700)
+is_dummy = true
+character_tint = Color(0.434715, 0.54436, 1, 1)
+player_id = 3
 
 [node name="Stage" type="Node2D" parent="."]
 position = Vector2(-4, -6)
@@ -124,5 +138,39 @@ texture = ExtResource("5_dc040")
 offset = Vector2(0, -400)
 region_enabled = true
 region_rect = Rect2(0, 0, 6000, 6000)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="PlayerUI1" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player1")
+
+[node name="PlayerUI2" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player2")
+
+[node name="PlayerUI3" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player3")
+
+[node name="PlayerUI4" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
+z_index = 1
+player = NodePath("../../../Player4")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("7_sjxhf")
+max_inclusion_x = 1000
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]
