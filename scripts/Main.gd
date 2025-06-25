@@ -8,7 +8,8 @@ const Player = preload("res://scripts/Player.gd")
 @onready var death_zone = $DeathZone
 
 
-#func _ready():
+func _ready():
+	$Camera2D.players = [$Player1, $Player2, $Player3, $Player4]
 	#$UI/PlayerUI1.player = $Player1
 	#$UI/PlayerUI2.player = $Player2
 	#$UI/PlayerUI3.player = $Player3

@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://ci3e3idcrf8q1" path="res://assets/sprites/player/strawberry/strawberry_idle.png" id="2_dwui3"]
 
 [sub_resource type="SystemFont" id="SystemFont_dwui3"]
+subpixel_positioning = 0
 
 [sub_resource type="LabelSettings" id="LabelSettings_hl6yw"]
 font = SubResource("SystemFont_dwui3")

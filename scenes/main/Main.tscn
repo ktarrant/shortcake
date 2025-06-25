@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://b1medohf0ugns"]
+[gd_scene load_steps=12 format=3 uid="uid://b1medohf0ugns"]
 
 [ext_resource type="Script" uid="uid://dvxdmn76sxxto" path="res://scripts/Main.gd" id="1_gyg6b"]
 [ext_resource type="PackedScene" uid="uid://dqq4w7fimk4gi" path="res://scenes/player/Player.tscn" id="2_dc040"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://i8xfni3e47dn" path="res://assets/sprites/platforms/cane.png" id="4_sjxhf"]
 [ext_resource type="Texture2D" uid="uid://8orck21hf6kr" path="res://assets/backgrounds/background.png" id="5_dc040"]
 [ext_resource type="PackedScene" uid="uid://b4gskdns6cc23" path="res://scenes/player/PlayerUI.tscn" id="6_1rhdn"]
+[ext_resource type="Script" uid="uid://ylm3hl20djy8" path="res://scripts/CameraController.gd" id="7_sjxhf"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(1270, 256)
@@ -167,5 +168,8 @@ player = NodePath("../../../Player3")
 [node name="PlayerUI4" parent="CanvasLayer/HBoxContainer" node_paths=PackedStringArray("player") instance=ExtResource("6_1rhdn")]
 z_index = 1
 player = NodePath("../../../Player4")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+script = ExtResource("7_sjxhf")
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]
