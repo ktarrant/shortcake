@@ -23,13 +23,13 @@ func init_for_player(player_id: int):
 	var offset_x := 0
 	match player_id:
 		0:
-			offset_x = -400
+			offset_x = -800
 		1:
-			offset_x = -150
+			offset_x = -300
 		2:
-			offset_x = 150
+			offset_x = 300
 		3:
-			offset_x = 400
+			offset_x = 800
 	
 	container.offset_left = offset_x - 64
 	container.offset_right = offset_x + 64

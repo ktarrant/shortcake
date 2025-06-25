@@ -1,7 +1,15 @@
-[gd_scene load_steps=5 format=3 uid="uid://b4gskdns6cc23"]
+[gd_scene load_steps=7 format=3 uid="uid://b4gskdns6cc23"]
 
 [ext_resource type="Script" uid="uid://c13cr8jrcya8k" path="res://scripts/PlayerUI.gd" id="1_f7lci"]
 [ext_resource type="Texture2D" uid="uid://ci3e3idcrf8q1" path="res://assets/sprites/player/strawberry/strawberry_idle.png" id="2_dwui3"]
+[ext_resource type="Texture2D" uid="uid://d0pc76oqsr6e5" path="res://assets/backgrounds/puff.png" id="3_hl6yw"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hl6yw"]
+content_margin_left = 100.0
+content_margin_top = 24.0
+content_margin_bottom = 24.0
+texture = ExtResource("3_hl6yw")
+region_rect = Rect2(0, 0, 800, 800)
 
 [sub_resource type="SystemFont" id="SystemFont_dwui3"]
 subpixel_positioning = 0
@@ -47,4 +55,5 @@ layout_mode = 2
 offset_top = 116.0
 offset_right = 256.0
 offset_bottom = 139.0
+theme_override_styles/normal = SubResource("StyleBoxTexture_hl6yw")
 label_settings = SubResource("LabelSettings_hl6yw")
