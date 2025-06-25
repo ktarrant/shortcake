@@ -171,5 +171,6 @@ player = NodePath("../../../Player4")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 script = ExtResource("7_sjxhf")
+max_inclusion_x = 1000
 
 [connection signal="body_entered" from="DeathZone" to="." method="_on_DeathZone_body_entered"]
