@@ -7,6 +7,37 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource("1_rpf2k")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PlayerRow1" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Player 1: Keyboard & Mouse"
+
+[node name="PlayerRow2" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Player 2: Not Connected"
+
+[node name="PlayerRow3" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Player 3: Not Connected"
+
+[node name="PlayerRow4" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Player 4: Not Connected"
+
+[node name="StartButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Start Game"
+
+[node name="AddDummyButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Add Dummy Player"
