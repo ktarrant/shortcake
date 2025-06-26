@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Shortcake"
-run/main_scene="res://scenes/main/Main.tscn"
+run/main_scene="uid://bok02o72b7aus"
 config/features=PackedStringArray("4.4")
 config/icon="res://icon.svg"
 
