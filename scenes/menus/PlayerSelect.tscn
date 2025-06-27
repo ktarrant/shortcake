@@ -2,42 +2,91 @@
 
 [ext_resource type="Script" uid="uid://c8s0hws2uha24" path="res://scripts/PlayerSelect.gd" id="1_rpf2k"]
 
-[node name="PlayerSelect" type="Control"]
-layout_mode = 3
+[node name="PlayerSelect" type="VBoxContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_rpf2k")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="PlayerRows" type="VBoxContainer" parent="."]
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PlayerRow1" type="Label" parent="VBoxContainer"]
+[node name="PlayerRow0" type="HBoxContainer" parent="PlayerRows"]
 layout_mode = 2
-text = "Player 1: Keyboard & Mouse"
 
-[node name="PlayerRow2" type="Label" parent="VBoxContainer"]
+[node name="Label" type="Label" parent="PlayerRows/PlayerRow0"]
 layout_mode = 2
-text = "Player 2: Not Connected"
 
-[node name="PlayerRow3" type="Label" parent="VBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="PlayerRows/PlayerRow0"]
 layout_mode = 2
-text = "Player 3: Not Connected"
 
-[node name="PlayerRow4" type="Label" parent="VBoxContainer"]
+[node name="RemoveButton" type="Button" parent="PlayerRows/PlayerRow0"]
 layout_mode = 2
-text = "Player 4: Not Connected"
+disabled = true
+text = "Remove"
 
-[node name="StartButton" type="Button" parent="VBoxContainer"]
+[node name="PlayerRow1" type="HBoxContainer" parent="PlayerRows"]
 layout_mode = 2
-text = "Start Game"
 
-[node name="AddDummyButton" type="Button" parent="VBoxContainer"]
+[node name="Label" type="Label" parent="PlayerRows/PlayerRow1"]
 layout_mode = 2
-text = "Add Dummy Player"
+text = "Player 2"
+
+[node name="OptionButton" type="OptionButton" parent="PlayerRows/PlayerRow1"]
+layout_mode = 2
+
+[node name="RemoveButton" type="Button" parent="PlayerRows/PlayerRow1"]
+layout_mode = 2
+text = "Remove"
+
+[node name="PlayerRow2" type="HBoxContainer" parent="PlayerRows"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PlayerRows/PlayerRow2"]
+layout_mode = 2
+text = "Player 3"
+
+[node name="OptionButton" type="OptionButton" parent="PlayerRows/PlayerRow2"]
+layout_mode = 2
+
+[node name="RemoveButton" type="Button" parent="PlayerRows/PlayerRow2"]
+layout_mode = 2
+text = "Remove"
+
+[node name="PlayerRow3" type="HBoxContainer" parent="PlayerRows"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PlayerRows/PlayerRow3"]
+layout_mode = 2
+text = "Player 4"
+
+[node name="OptionButton" type="OptionButton" parent="PlayerRows/PlayerRow3"]
+layout_mode = 2
+
+[node name="RemoveButton" type="Button" parent="PlayerRows/PlayerRow3"]
+layout_mode = 2
+text = "Remove"
+
+[node name="Spacer" type="Control" parent="."]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="ButtonRow"]
+layout_mode = 2
+text = "Back"
+
+[node name="Spacer" type="Control" parent="ButtonRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StartButton" type="Button" parent="ButtonRow"]
+layout_mode = 2
+text = "Start"

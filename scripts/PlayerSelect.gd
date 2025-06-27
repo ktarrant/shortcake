@@ -1,42 +1,83 @@
-extends Control
 
-var player_joypads := {1: null, 2: null, 3: null, 4: null}
-var dummy_count := 0
+extends Control
+class_name PlayerSelect
+
+@export var player_row_scene: PackedScene
+var max_players := 4
+
+var input_options := []
+var selected_inputs := []
+var player_rows := []
 
 func _ready():
-	update_display()
-	$VBoxContainer/StartButton.pressed.connect(_on_start_pressed)
-	$VBoxContainer/AddDummyButton.pressed.connect(_on_add_dummy_pressed)
+	input_options = ["Mouse+Keyboard"] + _get_connected_joypads()
+	selected_inputs = ["Mouse+Keyboard"]
+	_create_player_rows()
 
-func _input(event):
-	if event is InputEventJoypadButton and event.pressed:
-		var new_id = event.device
-		for i in range(2, 5):  # player 2 to 4
-			if player_joypads[i] == null and not new_id in player_joypads.values():
-				player_joypads[i] = new_id
-				update_display()
-				break
+func _get_connected_joypads() -> Array:
+	var pads = []
+	for i in range(Input.get_connected_joypads().size()):
+		pads.append("JoyCon %d" % i)
+	return pads
 
-func update_display():
-	for i in range(1, 5):
-		var label = get_node("VBoxContainer/PlayerRow%d" % i)
-		if i == 1:
-			label.text = "Player 1: Keyboard & Mouse"
-		elif typeof(player_joypads[i]) == TYPE_INT:
-			label.text = "Player %d: JoyCon %d" % [i, player_joypads[i]]
-		elif player_joypads[i] == "Dummy":
-			label.text = "Player %d: Dummy" % i
-		else:
-			label.text = "Player %d: Not Connected" % i
+func _create_player_rows():
+	var container = $PlayerRows
+	for i in range(max_players):
+		var row = container.get_node("PlayerRow%d" % i)
+		var label = row.get_node("Label")
+		var option_button = row.get_node("OptionButton")
+		var remove_button = row.get_node("RemoveButton")
 
-func _on_add_dummy_pressed():
-	for i in range(2, 5):
-		if player_joypads[i] == null:
-			player_joypads[i] = "Dummy"
-			update_display()
-			break
+		label.text = "Player %d" % (i + 1)
+		remove_button.disabled = (i == 0)
+		remove_button.connect("pressed", Callable(self, "_on_remove_player_pressed").bind(i))
+		option_button.clear()
 
-func _on_start_pressed():
-	var connected_players = player_joypads.values().filter(func(p): return p != null)
-	if connected_players.size() >= 1:
-		get_tree().change_scene_to_file("res://path_to_your_game_scene.tscn")
+		var available = _get_available_input_options(i)
+		for input in available:
+			option_button.add_item(input)
+		option_button.select(0 if i == 0 else -1)
+		option_button.connect("item_selected", Callable(self, "_on_input_selected").bind(i))
+
+		player_rows.append({
+			"label": label,
+			"option_button": option_button,
+			"remove_button": remove_button
+		})
+
+func _get_available_input_options(index: int) -> Array:
+	var options = input_options.duplicate()
+	for i in range(len(player_rows)):
+		if i != index:
+			var selected = player_rows[i]["option_button"].get_item_text(
+				player_rows[i]["option_button"].get_selected()
+			)
+			options.erase(selected)
+	return options
+
+func _on_remove_player_pressed(index: int):
+	if index == 0:
+		return # never remove player 1
+	for child in $PlayerRows.get_children():
+		child.queue_free()
+	player_rows.clear()
+	selected_inputs = selected_inputs.slice(0, index) + selected_inputs.slice(index + 1)
+	_create_player_rows()
+
+func _on_input_selected(index: int, id: int):
+	var option_button = player_rows[index]["option_button"]
+	var selected = option_button.get_item_text(id)
+	selected_inputs[index] = selected
+	# Refresh all rows to update option availability
+	for i in range(len(player_rows)):
+		if i != index:
+			var current = player_rows[i]["option_button"].get_item_text(
+				player_rows[i]["option_button"].get_selected()
+			)
+			player_rows[i]["option_button"].clear()
+			var options = _get_available_input_options(i)
+			for opt in options:
+				player_rows[i]["option_button"].add_item(opt)
+			var current_index = options.find(current)
+			if current_index != -1:
+				player_rows[i]["option_button"].select(current_index)
