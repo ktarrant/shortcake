@@ -1,6 +1,7 @@
 extends Control
 
 func _ready():
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	$HBoxContainer/VBoxContainer/NewGame.pressed.connect(_on_new_game_pressed)
 	$HBoxContainer/VBoxContainer/Quit.pressed.connect(_on_quit_pressed)
 

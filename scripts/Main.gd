@@ -9,8 +9,6 @@ const Player = preload("res://scripts/Player.gd")
 
 
 func _ready():
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-	
 	$Camera2D.players = [$Player1, $Player2, $Player3, $Player4]
 
 func _on_DeathZone_body_entered(body):

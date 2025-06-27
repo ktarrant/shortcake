@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://bvqa126ejlb0w"]
+
+[node name="PlayerRow" type="HBoxContainer"]
+
+[node name="PlayerLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Player X"
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 2
+
+[node name="InputComboBox" type="OptionButton" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RemoveButton" type="Button" parent="."]
+layout_mode = 2
+text = "Remove"
+
+[node name="AddDummyButton" type="Button" parent="."]
+visible = false
+layout_mode = 2
+text = "Add Dummy"
