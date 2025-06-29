@@ -1,117 +1,68 @@
 extends Control
 
 const MAX_PLAYERS := 4
-const INPUT_OPTIONS := ["Keyboard"]
 
-@onready var player_rows := [
+const PlayerRow = preload("res://scripts/PlayerRow.gd")
+
+@onready var player_rows: Array[PlayerRow] = [
 	$VBox/PlayerRow1,
 	$VBox/PlayerRow2,
 	$VBox/PlayerRow3,
 	$VBox/PlayerRow4,
 ]
 
-var assigned_inputs := ["Keyboard"]
-var connected_joypads := []
+var available_inputs: Dictionary[String, int] = {}
 
 func _ready():
 	$BottomButtons/BackButton.pressed.connect(_on_BackButton_pressed)
 	$BottomButtons/StartGameButton.pressed.connect(_on_StartGameButton_pressed)
+
+	# Initialize Player 1 row with LOCAL
+	player_rows[0].init(player_rows[0].State.LOCAL, 0, "Keyboard")
+
+	# Initialize other rows with DISABLED
+	for i in range(1, MAX_PLAYERS):
+		player_rows[i].init(player_rows[i].State.DISABLED, i)
+
+	update_input_options()
 	
-	connected_joypads = Input.get_connected_joypads()
-	for joypad in connected_joypads:
-		var label = "JoyCon %d" % joypad
-		if label not in INPUT_OPTIONS:
-			INPUT_OPTIONS.append(label)
-
-	# Initialize Player 1 row
-	setup_player_row(player_rows[0], "Keyboard", 0, true)
-
-	# Clear other rows
-	for i in range(1, MAX_PLAYERS):
-		clear_player_row(player_rows[i])
-
-	update_add_dummy_button()
-
-func setup_player_row(row, input_label: String, index: int, is_player1 := false, is_dummy := false):
-	row.get_node("AddDummyButton").visible = false
-	row.get_node("InputComboBox").disabled = is_dummy
-	row.get_node("RemoveButton").disabled = is_player1
-
-	# Set player label
-	row.get_node("PlayerLabel").text = "Player %d" % (index + 1)
-
-	var combo: OptionButton = row.get_node("InputComboBox")
-	combo.clear()
-	for option in INPUT_OPTIONS:
-		if option not in assigned_inputs or option == input_label:
-			combo.add_item(option)
-
-	for i in combo.item_count:
-		if combo.get_item_text(i) == input_label:
-			combo.select(i)
-			break
-
-	var callable = Callable(self, "_on_input_changed").bind(row)
-	if not combo.is_connected("item_selected", callable):
-		combo.connect("item_selected", callable)
-
-	var remove_button = row.get_node("RemoveButton")
-	var remove_callable = Callable(self, "_on_remove_pressed").bind(row)
-	if not remove_button.is_connected("pressed", remove_callable):
-		remove_button.connect("pressed", remove_callable)
-
-	row.visible = true
-	if input_label != "Dummy":
-		assigned_inputs.append(input_label)
-
-func clear_player_row(row):
-	row.visible = false
-	row.get_node("InputComboBox").clear()
-	row.get_node("AddDummyButton").visible = false
-
-func update_add_dummy_button():
-	for i in range(1, MAX_PLAYERS):
-		var row = player_rows[i]
-		if not row.visible:
-			row.visible = true
-			row.get_node("AddDummyButton").visible = true
-			var dummy_button = row.get_node("AddDummyButton")
-			var callable = Callable(self, "_on_add_dummy_pressed").bind(row)
-			if not dummy_button.is_connected("pressed", callable):
-				dummy_button.connect("pressed", callable)
-			break
-
-func _on_add_dummy_pressed(row):
-	var index = player_rows.find(row)
-	setup_player_row(row, "Dummy", index, false, true)
-	update_add_dummy_button()
-
-func _on_remove_pressed(row):
-	var combo: OptionButton = row.get_node("InputComboBox")
-	var selected_input := combo.get_item_text(combo.selected)
-	assigned_inputs.erase(selected_input)
-	clear_player_row(row)
-	update_add_dummy_button()
-
-func _on_input_changed(index, row):
-	var combo: OptionButton = row.get_node("InputComboBox")
-	var selected_input := combo.get_item_text(index)
-	for input in assigned_inputs:
-		if input == selected_input:
-			return
-	assigned_inputs.append(selected_input)
+func update_available_inputs():
+	var all_inputs = {"Keyboard": 0}
+	for joypad in Input.get_connected_joypads():
+		all_inputs["JoyCon %d" % joypad] = joypad
+	var taken_inputs: Array[String] = []
+	for row in player_rows:
+		print(row.get_state(), row.get_input_type())
+		if row.get_state() == PlayerRow.State.LOCAL:
+			taken_inputs.append(row.get_input_type())
+	print("All: ", all_inputs)
+	print("Taken: ", taken_inputs)
+	available_inputs.clear()
+	for input in all_inputs:
+		if input not in taken_inputs:
+			available_inputs[input] = all_inputs[input]
+	
+func update_input_options():
+	update_available_inputs()
+	print("Available inputs: ", available_inputs)
+	for row in player_rows:
+		if row.state == PlayerRow.State.LOCAL:
+			var input_list: Array[String]
+			input_list.append(row.get_input_type())
+			input_list.append_array(available_inputs.keys())
+			row.update_input_options(input_list)
 
 func _input(event):
 	if event is InputEventJoypadButton and event.pressed:
 		var device_id: int = event.device
 		var label := "JoyCon %d" % device_id
-		if label in assigned_inputs:
+		if label in available_inputs:
 			return
 		for i in range(1, MAX_PLAYERS):
-			var row = player_rows[i]
-			if not row.visible:
-				setup_player_row(row, label, i)
-				update_add_dummy_button()
+			if player_rows[i].state == player_rows[i].State.DISABLED:
+				player_rows[i].set_state(player_rows[i].State.LOCAL)
+				player_rows[i].set_input_type(label, device_id)
+				update_input_options()
 				break
 
 func _on_BackButton_pressed():

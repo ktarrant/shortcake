@@ -1,6 +1,9 @@
-[gd_scene format=3 uid="uid://bvqa126ejlb0w"]
+[gd_scene load_steps=2 format=3 uid="uid://bvqa126ejlb0w"]
+
+[ext_resource type="Script" uid="uid://tp2talu4jrjb" path="res://scripts/PlayerRow.gd" id="1_124xp"]
 
 [node name="PlayerRow" type="HBoxContainer"]
+script = ExtResource("1_124xp")
 
 [node name="PlayerLabel" type="Label" parent="."]
 layout_mode = 2
