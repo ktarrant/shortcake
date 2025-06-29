@@ -15,6 +15,10 @@ run/main_scene="uid://bok02o72b7aus"
 config/features=PackedStringArray("4.4")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Global="*res://scripts/Global.gd"
+
 [input]
 
 move_left={

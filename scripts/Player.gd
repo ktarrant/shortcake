@@ -39,8 +39,9 @@ var dropped_through_platform := false
 var overlapping_player_count := 0
 var percent := 0
 var shield_health: float = 100.0
-
 var state: PlayerState = null
+var player_input: String = ""
+var player_joycon_id: int = 0
 
 func _ready():
 	floor_max_angle = deg_to_rad(60)
@@ -81,18 +82,18 @@ func _global_physics_process(delta):
 		base_velocity.x = lerp(base_velocity.x, 0.0, 0.1)
 
 func get_movement_input() -> Vector2:
-	var stick := Vector2(
-		Input.get_joy_axis(player_id, JOY_AXIS_LEFT_X),
-		-Input.get_joy_axis(player_id, JOY_AXIS_LEFT_Y)
-	)
 	var keys := Vector2.ZERO
-	if player_id == 0:
+	if player_input == "Keyboard":
 		if Input.is_action_pressed("move_right"): keys.x += 1
 		if Input.is_action_pressed("move_left"): keys.x -= 1
 		if Input.is_action_pressed("move_down"): keys.y -= 1
 		if Input.is_action_pressed("move_up"): keys.y += 1
-	var combined := stick + keys
-	return combined.normalized() if combined.length() > 0.2 else Vector2.ZERO
+	elif player_input != "":
+		keys = Vector2(
+			Input.get_joy_axis(player_joycon_id, JOY_AXIS_LEFT_X),
+			-Input.get_joy_axis(player_joycon_id, JOY_AXIS_LEFT_Y)
+		)
+	return keys.normalized() if keys.length() > 0.2 else Vector2.ZERO
 
 func change_state(new_state: PlayerState):
 	if state != null:

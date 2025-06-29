@@ -18,11 +18,11 @@ func _ready():
 	$BottomButtons/StartGameButton.pressed.connect(_on_StartGameButton_pressed)
 
 	# Initialize Player 1 row with LOCAL
-	player_rows[0].init(player_rows[0].State.LOCAL, 0, "Keyboard")
+	player_rows[0].init(Global.PlayerSelectState.LOCAL, 0, "Keyboard")
 
 	# Initialize other rows with DISABLED
 	for i in range(1, MAX_PLAYERS):
-		player_rows[i].init(player_rows[i].State.DISABLED, i)
+		player_rows[i].init(Global.PlayerSelectState.DISABLED, i)
 
 	update_input_options()
 	
@@ -32,7 +32,7 @@ func update_available_inputs():
 		all_inputs["JoyCon %d" % joypad] = joypad
 	var taken_inputs: Array[String] = []
 	for row in player_rows:
-		if row.get_state() == PlayerRow.State.LOCAL:
+		if row.get_state() == Global.PlayerSelectState.LOCAL:
 			taken_inputs.append(row.get_input_type())
 	available_inputs.clear()
 	for input in all_inputs:
@@ -42,7 +42,7 @@ func update_available_inputs():
 func update_input_options():
 	update_available_inputs()
 	for row in player_rows:
-		if row.state == PlayerRow.State.LOCAL:
+		if row.state == Global.PlayerSelectState.LOCAL:
 			var input_list: Array[String]
 			input_list.append(row.get_input_type())
 			input_list.append_array(available_inputs.keys())
@@ -65,4 +65,14 @@ func _on_BackButton_pressed():
 	get_tree().change_scene_to_file("res://scenes/menus/MainMenu.tscn")
 
 func _on_StartGameButton_pressed():
+	Global.player_configs = []
+
+	for row in player_rows:
+		Global.player_configs.append({
+			"index": row.index,
+			"state": row.state,
+			"input_type": row.current_input_type,
+			"joycon_id": row.current_joycon_id
+		})
+
 	get_tree().change_scene_to_file("res://scenes/main/Main.tscn")
