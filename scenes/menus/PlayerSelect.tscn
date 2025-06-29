@@ -1,5 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://wtkqyysg2ffh"]
+[gd_scene load_steps=4 format=3 uid="uid://wtkqyysg2ffh"]
 
+[ext_resource type="Theme" uid="uid://donx7pglntsxv" path="res://themes/menu.tres" id="1_a0phn"]
 [ext_resource type="PackedScene" uid="uid://bvqa126ejlb0w" path="res://scenes/menus/PlayerRow.tscn" id="1_rpf2k"]
 [ext_resource type="Script" uid="uid://c8s0hws2uha24" path="res://scripts/PlayerSelect.gd" id="1_vlspg"]
 
@@ -10,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_a0phn")
 script = ExtResource("1_vlspg")
 
 [node name="VBox" type="VBoxContainer" parent="."]
@@ -40,9 +42,15 @@ anchor_bottom = 0.98
 
 [node name="BackButton" type="Button" parent="BottomButtons"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Back"
+
+[node name="Control" type="Control" parent="BottomButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
 
 [node name="StartGameButton" type="Button" parent="BottomButtons"]
 layout_mode = 2
-size_flags_horizontal = 2
+size_flags_horizontal = 3
 text = "Start Game"

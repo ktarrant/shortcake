@@ -1,0 +1,10 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://donx7pglntsxv"]
+
+[sub_resource type="SystemFont" id="SystemFont_wlpbi"]
+subpixel_positioning = 0
+
+[resource]
+Button/font_sizes/font_size = 64
+Button/fonts/font = SubResource("SystemFont_wlpbi")
+Label/font_sizes/font_size = 64
+OptionButton/font_sizes/font_size = 64
