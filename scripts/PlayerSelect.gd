@@ -32,11 +32,8 @@ func update_available_inputs():
 		all_inputs["JoyCon %d" % joypad] = joypad
 	var taken_inputs: Array[String] = []
 	for row in player_rows:
-		print(row.get_state(), row.get_input_type())
 		if row.get_state() == PlayerRow.State.LOCAL:
 			taken_inputs.append(row.get_input_type())
-	print("All: ", all_inputs)
-	print("Taken: ", taken_inputs)
 	available_inputs.clear()
 	for input in all_inputs:
 		if input not in taken_inputs:
@@ -44,7 +41,6 @@ func update_available_inputs():
 	
 func update_input_options():
 	update_available_inputs()
-	print("Available inputs: ", available_inputs)
 	for row in player_rows:
 		if row.state == PlayerRow.State.LOCAL:
 			var input_list: Array[String]
